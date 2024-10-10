@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/common/common.dart';
 import 'package:quick_social/models/models.dart';
+import 'package:quick_social/pages/main_page.dart';
 import 'package:quick_social/pages/pages.dart';
 
 class HomePage extends StatefulWidget {
@@ -57,8 +58,8 @@ class _HomePageState extends State<HomePage> {
       controller: _pageController,
       onPageChanged: _pageChanged,
       children: [
+        const MainPage(),
         const FeedPage(),
-        const NotificationsPage(),
         ProfilePage(user: User.dummyUsers[0]),
       ],
     );
@@ -90,12 +91,12 @@ class _HomePageState extends State<HomePage> {
           label: const Text('Home'),
         ),
         NavigationRailDestination(
-          icon: const Icon(Icons.notifications_outlined),
+          icon: const Icon(Icons.explore),
           selectedIcon: Icon(
-            Icons.notifications,
+            Icons.explore,
             color: theme.colorScheme.primary,
           ),
-          label: const Text('Notifications'),
+          label: const Text('Home'),
         ),
         NavigationRailDestination(
           icon: const Icon(Icons.person_outlined),
@@ -115,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     return NavigationBar(
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: _pageIndex,
-      height: 65,
+      height: MediaQuery.of(context).size.height * 0.065,
       onDestinationSelected: _pageChanged,
       destinations: [
         NavigationDestination(
@@ -127,12 +128,12 @@ class _HomePageState extends State<HomePage> {
           label: 'Home',
         ),
         NavigationDestination(
-          icon: const Icon(Icons.notifications_outlined),
+          icon: const Icon(Icons.explore),
           selectedIcon: Icon(
-            Icons.notifications,
+            Icons.explore,
             color: theme.colorScheme.primary,
           ),
-          label: 'Notifications',
+          label: 'Add',
         ),
         NavigationDestination(
           icon: const Icon(Icons.person_outlined),

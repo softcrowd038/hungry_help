@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quick_social/common/common.dart';
-import 'package:quick_social/pages/pages.dart';
-import 'package:quick_social/widgets/widgets.dart';
+import 'package:quick_social/pages/register_page.dart';
+import 'package:quick_social/widgets/app_logo.dart';
 
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -9,18 +8,21 @@ class SplashPage extends StatelessWidget {
   void splashing(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(seconds: 3), () async {
-        if (context.mounted) context.push(route: HomePage.route());
+        if (context.mounted) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const RegisterPage()));
+        }
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    splashing(context);
+    splashing(context); // Trigger the delayed navigation
 
     return const Scaffold(
       body: Center(
-        child: AppLogo(),
+        child: AppLogo(), // Use the AppLogo widget with GIF animation
       ),
     );
   }

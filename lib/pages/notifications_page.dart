@@ -39,7 +39,9 @@ class _NotificationsPageState extends State<NotificationsPage>
         flexibleSpace: ResponsivePadding(
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.height * 0.016,
+                  vertical: MediaQuery.of(context).size.height * 0.010),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

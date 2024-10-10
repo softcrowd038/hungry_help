@@ -137,9 +137,9 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
         Positioned(
-          bottom: 20,
-          width: 100,
-          height: 100,
+          bottom: MediaQuery.of(context).size.height * 0.020,
+          width: MediaQuery.of(context).size.height * 0.100,
+          height: MediaQuery.of(context).size.height * 0.100,
           child: FittedBox(
             child: Container(
               decoration: BoxDecoration(
@@ -148,11 +148,7 @@ class ProfilePage extends StatelessWidget {
               ),
               child: UserStoryAvatar(
                 userStory: story,
-                onTap: () {
-                  context.push(
-                    route: UserStoryPage.route(0, userStories: [story]),
-                  );
-                },
+                onTap: () {},
               ),
             ),
           ),
@@ -164,7 +160,9 @@ class ProfilePage extends StatelessWidget {
   Widget _userBio(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.height * 0.016,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -175,42 +173,49 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
           Text('@${user.username}', style: textTheme.bodyMedium),
-          const SizedBox(height: 4),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.004,
+          ),
           Text(
             user.bio,
             style: textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
-          user.isMe ? const SizedBox(height: 24) : _profileButtons(),
+          user.isMe
+              ? SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.024,
+                )
+              : _profileButtons(context),
         ],
       ),
     );
   }
 
-  Widget _profileButtons() {
+  Widget _profileButtons(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.height * 0.024),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           FilledButton(
             onPressed: () {},
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
+                horizontal: MediaQuery.of(context).size.height * 0.024,
+                vertical: MediaQuery.of(context).size.height * 0.010,
               ),
-              child: Text('Follow'),
+              child: const Text('Follow'),
             ),
           ),
           OutlinedButton(
             onPressed: () {},
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 10,
+                horizontal: MediaQuery.of(context).size.height * 0.024,
+                vertical: MediaQuery.of(context).size.height * 0.010,
               ),
-              child: Text('Message'),
+              child: const Text('Message'),
             ),
           ),
         ],

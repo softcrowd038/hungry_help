@@ -1,77 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/models/models.dart';
+import 'package:quick_social/pages/home_page.dart';
+import 'package:quick_social/pages/notifications_page.dart';
+import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/widgets.dart';
 
-class FeedPage extends StatelessWidget {
+class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  State<FeedPage> createState() => _FeedPageState();
+}
 
+class _FeedPageState extends State<FeedPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  @override
+  Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
     return Scaffold(
-      appBar: _appBar(theme),
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+          onPressed: () => _scaffoldKey.currentState?.openDrawer()),
+      drawer: Drawer(
+        shape: const LinearBorder(),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: MediaQuery.of(context).size.height * 0.024,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_none),
+              title: const Text('Notifications'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotificationsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const NotificationsPage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: ResponsivePadding(
         child: ListView(
           children: [
-            SizedBox(
-              height: 110,
-              child: ListView.builder(
-                itemCount: UserStory.dummyUserStories.length,
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemBuilder: (_, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      left: index == 0 ? 4 : 0,
-                      right: index == UserStory.dummyUserStories.length - 1
-                          ? 4
-                          : 0,
-                    ),
-                    child: UserStoryTile(index: index),
-                  );
-                },
-              ),
-            ),
             ListView.separated(
               itemCount: Post.dummyPosts.length,
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               separatorBuilder: (_, index) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Divider(height: 4),
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.height * 0.016,
+                  ),
+                  child: Divider(
+                      height: MediaQuery.of(context).size.height * 0.004),
                 );
               },
               itemBuilder: (_, index) => PostCard(post: Post.dummyPosts[index]),
             )
           ],
-        ),
-      ),
-    );
-  }
-
-  AppBar _appBar(ThemeData theme) {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      flexibleSpace: ResponsivePadding(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const AppLogo(),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.send_sharp,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
