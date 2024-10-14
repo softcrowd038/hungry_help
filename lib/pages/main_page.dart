@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
+import 'package:quick_social/widgets/image_picker.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
 import 'package:quick_social/widgets/layout/role_box.dart';
@@ -97,17 +98,25 @@ class _MainPage extends State<MainPage> {
                   ),
                 ),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  RoleBox(
-                    height: 0.15,
-                    width: 0.15,
-                    icon: Icons.handshake,
-                    text: 'Donor',
-                    textFontSize: 0.018,
-                  ),
-                  RoleBox(
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacement(
+                            (context),
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const InstagramImagePicker()));
+                      },
+                      child: const RoleBox(
+                        height: 0.15,
+                        width: 0.15,
+                        icon: Icons.handshake,
+                        text: 'Donor',
+                        textFontSize: 0.018,
+                      )),
+                  const RoleBox(
                     height: 0.15,
                     width: 0.15,
                     icon: Icons.info,
