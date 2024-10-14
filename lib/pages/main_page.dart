@@ -103,11 +103,11 @@ class _MainPage extends State<MainPage> {
                 children: [
                   GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                             (context),
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const InstagramImagePicker()));
+                                    const CaptureImageOrVideoPage()));
                       },
                       child: const RoleBox(
                         height: 0.15,
