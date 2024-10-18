@@ -18,11 +18,11 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    splashing(context); // Trigger the delayed navigation
+    splashing(context);
 
     return const Scaffold(
       body: Center(
-        child: AppLogo(), // Use the AppLogo widget with GIF animation
+        child: AppLogo(),
       ),
     );
   }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
+import 'package:quick_social/pages/informer_persons_count.dart';
 import 'package:quick_social/pages/notifications_page.dart';
-import 'package:quick_social/widgets/image_picker.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
 import 'package:quick_social/widgets/layout/role_box.dart';
@@ -24,7 +25,6 @@ class _MainPage extends State<MainPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
       appBar: CustomAppBar(
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
@@ -106,8 +106,7 @@ class _MainPage extends State<MainPage> {
                         Navigator.push(
                             (context),
                             MaterialPageRoute(
-                                builder: (context) =>
-                                    const CaptureImageOrVideoPage()));
+                                builder: (context) => const AddMealPage()));
                       },
                       child: const RoleBox(
                         height: 0.15,
@@ -116,12 +115,21 @@ class _MainPage extends State<MainPage> {
                         text: 'Donor',
                         textFontSize: 0.018,
                       )),
-                  const RoleBox(
-                    height: 0.15,
-                    width: 0.15,
-                    icon: Icons.info,
-                    text: 'Informer',
-                    textFontSize: 0.018,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          (context),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const InformerPersonsCount()));
+                    },
+                    child: const RoleBox(
+                      height: 0.15,
+                      width: 0.15,
+                      icon: Icons.info,
+                      text: 'Informer',
+                      textFontSize: 0.018,
+                    ),
                   ),
                 ],
               ),

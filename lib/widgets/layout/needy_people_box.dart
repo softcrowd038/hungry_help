@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_social/pages/confirm_order.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
 class NeedyPeopleBox extends StatefulWidget {
@@ -59,12 +60,20 @@ class _NeedyPeopleBox extends State<NeedyPeopleBox> {
                 ),
               ),
             ),
-            const ButtonWidget(
-                text: 'HELP',
-                textFontSize: 0.012,
-                height: 0.04,
-                width: 0.16,
-                borderRadius: 0.04)
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ConfirmOrder()));
+              },
+              child: const ButtonWidget(
+                  text: 'HELP',
+                  textFontSize: 0.012,
+                  height: 0.04,
+                  width: 0.16,
+                  borderRadius: 0.04),
+            )
           ],
         ),
       ),

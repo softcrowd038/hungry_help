@@ -35,7 +35,6 @@ class _ProfileDataPage extends State<ProfileDataPage> {
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: SafeArea(

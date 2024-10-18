@@ -19,7 +19,6 @@ class _FeedPageState extends State<FeedPage> {
     ThemeData theme = Theme.of(context);
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
       appBar: CustomAppBar(
           onPressed: () => _scaffoldKey.currentState?.openDrawer()),
       drawer: Drawer(

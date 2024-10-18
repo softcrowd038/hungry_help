@@ -20,7 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: SafeArea(
           child: Form(
@@ -29,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image(
-                  image: const AssetImage('assets/images/registration.jpg'),
+                  image: const AssetImage('assets/images/registration.png'),
                   height: MediaQuery.of(context).size.height * 0.400,
                   width: MediaQuery.of(context).size.height * 0.400,
                 ),
