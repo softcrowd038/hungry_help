@@ -1,32 +1,23 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart' as loc;
 import 'package:geocoding/geocoding.dart';
-import 'package:quick_social/pages/home_page.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_social/pages/profile_birthdate_page.dart';
+import 'package:quick_social/provider/profile_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
-class AddLocationData extends StatefulWidget {
-  final XFile? mediaFile;
-  final String description;
-  final String expiryDate;
-  final String expiryTime;
-  final String quantiy;
-
-  const AddLocationData(
-      {super.key,
-      required this.description,
-      required this.expiryDate,
-      required this.expiryTime,
-      required this.mediaFile,
-      required this.quantiy});
+class ProfileLocationPage extends StatefulWidget {
+  const ProfileLocationPage({
+    super.key,
+  });
 
   @override
-  State<AddLocationData> createState() => _AddLocationData();
+  State<ProfileLocationPage> createState() => _ProfileLocationPage();
 }
 
-class _AddLocationData extends State<AddLocationData> {
+class _ProfileLocationPage extends State<ProfileLocationPage> {
   final GlobalKey _globalKey = GlobalKey();
 
   final TextEditingController _locationNameController = TextEditingController();
@@ -84,27 +75,9 @@ class _AddLocationData extends State<AddLocationData> {
     }
   }
 
-  void _submitForm() {
-    print('Media File: ${widget.mediaFile?.path}');
-    print('Description: ${widget.description}');
-    print('Expiry Date: ${widget.expiryDate}');
-    print('Expiry Time: ${widget.expiryTime}');
-    print('Quantity: ${widget.quantiy}');
-    print('Location Name: ${_locationNameController.text}');
-    print('Latitude: $_latitude');
-    print('Longitude: $_longitude');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Data submitted successfully!'),
-      ),
-    );
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => const HomePage()));
-  }
-
   @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<UserProfileProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -125,7 +98,7 @@ class _AddLocationData extends State<AddLocationData> {
                         width: MediaQuery.of(context).size.width,
                         height: 350,
                         child: Image.network(
-                          'https://img.freepik.com/free-vector/address-illustration-concept_114360-301.jpg?size=626&ext=jpg',
+                          'https://img.freepik.com/free-vector/location-review-concept-illustration_114360-4711.jpg',
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -194,13 +167,18 @@ class _AddLocationData extends State<AddLocationData> {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        _submitForm();
+                        profileProvider
+                            .setLocation(_locationNameController.text);
+                        profileProvider.setLatitude(_latitude!);
+                        profileProvider.setLongitude(_longitude!);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ProfileBirthdatePage()));
                       },
                       child: const ButtonWidget(
                         borderRadius: 0.06,
                         height: 0.06,
                         width: 1,
-                        text: 'SUBMIT',
+                        text: 'Add Location',
                         textFontSize: 0.022,
                       ),
                     )

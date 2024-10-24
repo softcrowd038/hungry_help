@@ -1,12 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/informer_persons_count.dart';
+import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
 import 'package:quick_social/widgets/layout/role_box.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -17,6 +21,17 @@ class MainPage extends StatefulWidget {
 
 class _MainPage extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('auth_token');
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +92,7 @@ class _MainPage extends State<MainPage> {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pop(context);
+                _logout(context);
               },
             ),
           ],
