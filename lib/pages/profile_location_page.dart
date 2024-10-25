@@ -172,7 +172,8 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
                         profileProvider.setLatitude(_latitude!);
                         profileProvider.setLongitude(_longitude!);
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ProfileBirthdatePage()));
+                            builder: (context) =>
+                                const ProfileBirthdatePage()));
                       },
                       child: const ButtonWidget(
                         borderRadius: 0.06,

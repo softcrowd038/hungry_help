@@ -1,11 +1,16 @@
+// ignore_for_file: avoid_print
+
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:quick_social/pages/informer_camera_review.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_social/pages/informer_camera_des_page.dart';
+import 'package:quick_social/provider/informer_data_provider.dart';
 
 class InformerCaptureImage extends StatefulWidget {
-  final String count;
-  const InformerCaptureImage({super.key, required this.count});
+  const InformerCaptureImage({super.key});
 
   @override
   State<InformerCaptureImage> createState() => _InformerCaptureImage();
@@ -44,7 +49,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
       setState(() {
         _capturedFile = image;
       });
-      _navigateToReviewPage();
+      _navigateToReviewPage(File(_capturedFile!.path));
     } catch (e) {
       print('Error capturing image: $e');
     }
@@ -58,20 +63,23 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
         setState(() {
           _capturedFile = pickedFile;
         });
-        _navigateToReviewPage();
+        _navigateToReviewPage(File(_capturedFile!.path));
       }
     } catch (e) {
       print('Error picking image from gallery: $e');
     }
   }
 
-  void _navigateToReviewPage() {
+  void _navigateToReviewPage(File capturedFile) {
     if (_capturedFile != null) {
+      final informerDataProvider =
+          Provider.of<InformerDataProvider>(context, listen: false);
+
+      informerDataProvider.setImageUrl(capturedFile);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              InformerCameraReviewPage(mediaFile: _capturedFile, count: widget.count,),
+          builder: (context) => const InformerCameraDescriptionPage(),
         ),
       );
     }
@@ -106,7 +114,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
             ),
             TextButton(
                 onPressed: () {
-                  _navigateToReviewPage();
+                  _navigateToReviewPage(File(_capturedFile!.path));
                 },
                 child: Text(
                   'Next',

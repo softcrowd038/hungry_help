@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
-import 'package:quick_social/pages/informer_persons_count.dart';
+import 'package:quick_social/pages/informer_capture_image.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
@@ -136,7 +136,7 @@ class _MainPage extends State<MainPage> {
                           (context),
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const InformerPersonsCount()));
+                                  const InformerCaptureImage()));
                     },
                     child: const RoleBox(
                       height: 0.15,

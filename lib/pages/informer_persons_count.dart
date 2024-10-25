@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:quick_social/pages/informer_capture_image.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_social/pages/informer_camera_review.dart';
+import 'package:quick_social/provider/informer_data_provider.dart';
+import 'package:quick_social/widgets/layout/button_widget.dart';
+import 'package:quick_social/widgets/layout/text_field.dart';
 
 class InformerPersonsCount extends StatefulWidget {
   const InformerPersonsCount({super.key});
@@ -8,129 +12,171 @@ class InformerPersonsCount extends StatefulWidget {
 }
 
 class _InformerPersonsCount extends State<InformerPersonsCount> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _quantityEditingController =
-      TextEditingController(); // Moved outside of build()
+  final GlobalKey _globalKey = GlobalKey();
 
-  @override
-  void dispose() {
-    _quantityEditingController
-        .dispose(); // Clean up the controller when the widget is disposed
-    super.dispose();
-  }
+  final TextEditingController _quantityEditingController =
+      TextEditingController();
+  final TextEditingController _expirytimeEditingController =
+      TextEditingController();
+  final TextEditingController _expiryDateEditingController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final informerDataProvider = Provider.of<InformerDataProvider>(context);
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 350.0,
-                    child: Image.network(
-                      'https://www.shutterstock.com/image-vector/hands-counting-by-showing-fingers-600nw-1720234543.jpg',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  Positioned(
-                    left: 10,
-                    top: 10,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width - 20,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back,
-                                size: 22,
-                              ),
-                              color: Colors.white,
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => InformerCaptureImage(
-                                    count: _quantityEditingController.text,
-                                  ),
-                                ));
-                              }
-                            },
-                            child: Text(
-                              'Next',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                                fontSize:
-                                    MediaQuery.of(context).size.height * 0.022,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Form(
-                key: _formKey, // Updated form key
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 420.0,
+              floating: false,
+              pinned: true,
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
                   children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.02,
-                    ),
-                    const Text(
-                      'Inform Now',
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                    const Text(
-                      'Enter the Count of Needy people',
-                      style: TextStyle(
-                        fontSize: 14,
+                    Positioned(
+                      top: 10,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: 400,
+                        child: Image.asset(
+                          'assets/images/informer.jpeg',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.020),
-                    Padding(
-                      padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.height * 0.0080),
-                      child: TextFormField(
-                        controller: _quantityEditingController,
-                        decoration: const InputDecoration(
-                          hintText: ' People Count',
-                          prefixIcon: Icon(Icons.people),
+                    Positioned(
+                      left: 10,
+                      top: 10,
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a value';
-                          }
-                          return null;
-                        },
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            size: 22,
+                          ),
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+            SliverToBoxAdapter(
+              child: Form(
+                key: _globalKey,
+                child: Column(
+                  children: [
+                    const Text(
+                      'Add Needy People Details',
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'Add People Starving for food',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedDate != null) {
+                          String formattedDate =
+                              '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                          setState(() {
+                            _expiryDateEditingController.text = formattedDate;
+                          });
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: TextFieldWidget(
+                          controller: _expiryDateEditingController,
+                          hintText: 'Capture Date',
+                          prefixIcon: const Icon(Icons.date_range),
+                          keyboardType: TextInputType.datetime,
+                          obscureText: false,
+                          validator: (p0) {},
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (pickedTime != null) {
+                          setState(() {
+                            _expirytimeEditingController.text =
+                                pickedTime.format(context);
+                          });
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: TextFieldWidget(
+                          controller: _expirytimeEditingController,
+                          hintText: 'Current Time',
+                          prefixIcon: const Icon(Icons.watch),
+                          keyboardType: TextInputType.datetime,
+                          obscureText: false,
+                          validator: (p0) {},
+                        ),
+                      ),
+                    ),
+                    TextFieldWidget(
+                      controller: _quantityEditingController,
+                      hintText: 'Food Amount or People Count',
+                      prefixIcon: const Icon(Icons.food_bank),
+                      keyboardType: TextInputType.number,
+                      obscureText: false,
+                      validator: (p0) {},
+                    ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        informerDataProvider
+                            .setDonationDate(_expiryDateEditingController.text);
+                        informerDataProvider
+                            .setDonationTime(_expirytimeEditingController.text);
+                        informerDataProvider
+                            .setQuantity(_quantityEditingController.text);
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) =>
+                                const InformerCameraReviewPage()));
+                      },
+                      child: const ButtonWidget(
+                        borderRadius: 0.06,
+                        height: 0.06,
+                        width: 1,
+                        text: 'Add Location',
+                        textFontSize: 0.022,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

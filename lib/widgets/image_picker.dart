@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:quick_social/widgets/review_post.dart';
@@ -67,7 +69,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ReviewPage(mediaFile: _capturedFile),
+          builder: (context) =>const ReviewPage(),
         ),
       );
     }

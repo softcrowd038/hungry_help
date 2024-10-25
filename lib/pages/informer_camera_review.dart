@@ -1,20 +1,20 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:location/location.dart' as loc;
+import 'package:provider/provider.dart';
 import 'package:quick_social/pages/home_page.dart';
+import 'package:quick_social/provider/informer_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InformerCameraReviewPage extends StatefulWidget {
-  final XFile? mediaFile;
-  final String count;
-
   const InformerCameraReviewPage({
     super.key,
-    required this.count,
-    required this.mediaFile,
   });
 
   @override
@@ -24,13 +24,12 @@ class InformerCameraReviewPage extends StatefulWidget {
 class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _locationNameController = TextEditingController();
-
   loc.LocationData? _currentLocation;
   String? _locationName;
   double? _latitude;
   double? _longitude;
   bool _isLoadingLocation = false;
-
+  bool _isLoading = false;
   final loc.Location _locationService = loc.Location();
 
   Future<void> _getCurrentLocation() async {
@@ -84,22 +83,84 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState?.validate() ?? false) {
-      print('Media File: ${widget.mediaFile?.path}');
-      print('Description: ${widget.count}');
-      print('Location Name: ${_locationNameController.text}');
-      print('Latitude: $_latitude');
-      print('Longitude: $_longitude');
+  Future<void> submitDonation() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Data submitted successfully!'),
-        ),
-      );
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => const HomePage()));
+    if (_formKey.currentState!.validate()) {
+      final informerProfileProvider =
+          Provider.of<InformerDataProvider>(context, listen: false);
+
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+      final uuid = prefs.getString('user_uuid');
+
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('User authentication token is missing.')),
+        );
+        return;
+      }
+
+      final String authToken = token;
+      final url = Uri.parse('http://192.168.1.2:8080/api/v1/informer');
+
+      var request = http.MultipartRequest('POST', url);
+      request.fields['uuid'] = uuid!;
+      request.fields['description'] = informerProfileProvider.description;
+      request.fields['capture_date'] = informerProfileProvider.donationDate;
+      request.fields['capture_time'] = informerProfileProvider.donationTime;
+      request.fields['count'] = informerProfileProvider.quantity;
+      request.fields['location'] = _locationNameController.text;
+      request.fields['latitude'] = _latitude.toString();
+      request.fields['longitude'] = _longitude.toString();
+
+      if (informerProfileProvider.imageurl != null) {
+        request.files.add(await http.MultipartFile.fromPath(
+          'imageurl',
+          informerProfileProvider.imageurl!.path,
+        ));
+      }
+
+      request.headers['Authorization'] = 'Bearer $authToken';
+
+      try {
+        var response = await request.send();
+        if (response.statusCode == 201) {
+          final responseData = await http.Response.fromStream(response);
+          final jsonResponse = json.decode(responseData.body);
+
+          print('Informer data submitted successfully: $jsonResponse');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Informer data submitted successfully!')),
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        } else {
+          final responseData = await http.Response.fromStream(response);
+          final jsonResponse = json.decode(responseData.body);
+          final message =
+              jsonResponse['message'] ?? 'Failed to submit Informer data';
+          print(
+              'Failed to submit Informer data: ${response.statusCode} - $message');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
+      } catch (e) {
+        print('Error submitting donation data: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred: $e')),
+        );
+      }
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -110,6 +171,8 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final informerDataProvider = Provider.of<InformerDataProvider>(context);
+    ThemeData theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -187,13 +250,13 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          if (widget.mediaFile != null)
+                          if (informerDataProvider.imageurl != null)
                             ClipRRect(
                               borderRadius: BorderRadius.circular(
                                 MediaQuery.of(context).size.height * 0.01,
                               ),
                               child: Image.file(
-                                File(widget.mediaFile!.path),
+                                informerDataProvider.imageurl!,
                                 width:
                                     MediaQuery.of(context).size.height * 0.06,
                                 height:
@@ -229,7 +292,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                                     ),
                                   ),
                                   Text(
-                                    widget.count,
+                                    informerDataProvider.quantity,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -265,14 +328,19 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
-                      onTap: _submitForm,
-                      child: const ButtonWidget(
-                        borderRadius: 0.06,
-                        height: 0.06,
-                        width: 1,
-                        text: 'SUBMIT',
-                        textFontSize: 0.022,
-                      ),
+                      onTap: submitDonation,
+                      child: _isLoading
+                          ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  theme.colorScheme.primary),
+                            )
+                          : const ButtonWidget(
+                              borderRadius: 0.06,
+                              height: 0.06,
+                              width: 1,
+                              text: 'SUBMIT',
+                              textFontSize: 0.022,
+                            ),
                     ),
                   ],
                 ),

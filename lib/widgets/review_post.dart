@@ -1,15 +1,17 @@
 import 'dart:io';
-import 'dart:async'; // For Completer
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:quick_social/pages/add_meal_details.dart';
+import 'package:quick_social/provider/donor_data_provider.dart';
 
 class ReviewPage extends StatefulWidget {
-  final XFile? mediaFile;
-  const ReviewPage({super.key, required this.mediaFile});
+  const ReviewPage({
+    super.key,
+  });
 
   @override
-  _ReviewPageState createState() => _ReviewPageState();
+  State<StatefulWidget> createState() => _ReviewPageState();
 }
 
 class _ReviewPageState extends State<ReviewPage> {
@@ -17,6 +19,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final donorProfileProvider = Provider.of<DonorDataProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -28,10 +31,10 @@ class _ReviewPageState extends State<ReviewPage> {
             ),
             TextButton(
               onPressed: () {
+                donorProfileProvider
+                    .setDescription(_descriptionController.text);
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AddMealDetails(
-                        mediaFile: widget.mediaFile,
-                        description: _descriptionController.text)));
+                    builder: (context) => const AddMealDetails()));
               },
               child: Text(
                 'Next',
@@ -51,7 +54,8 @@ class _ReviewPageState extends State<ReviewPage> {
           child: Column(
             children: [
               FutureBuilder<Size>(
-                future: _getImageSize(File(widget.mediaFile!.path)),
+                future:
+                    _getImageSize(File(donorProfileProvider.imageurl!.path)),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final size = snapshot.data!;
@@ -68,7 +72,7 @@ class _ReviewPageState extends State<ReviewPage> {
                           child: AspectRatio(
                             aspectRatio: aspectRatio,
                             child: Image.file(
-                              File(widget.mediaFile!.path),
+                              File(donorProfileProvider.imageurl!.path),
                               fit: BoxFit.cover,
                             ),
                           ),

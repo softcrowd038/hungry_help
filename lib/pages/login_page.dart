@@ -51,8 +51,6 @@ class _LoginPageState extends State<LoginPage> {
         final String email = responseData['email'];
         final String uuid = responseData['uuid'];
 
-        print(username);
-
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', token);
         await prefs.setString('user_name', username);

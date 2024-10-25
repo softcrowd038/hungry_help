@@ -6,7 +6,7 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key, required this.onPressed});
 
   @override
-  _CustomAppBarState createState() => _CustomAppBarState();
+  State<StatefulWidget> createState() => _CustomAppBarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);

@@ -1,6 +1,12 @@
+// ignore_for_file: avoid_print
+
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Import image_picker
+import 'package:provider/provider.dart';
+import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/widgets/review_post.dart';
 
 class AddMealPage extends StatefulWidget {
@@ -16,8 +22,7 @@ class _AddMealPage extends State<AddMealPage> {
   XFile? _capturedFile;
   int _selectedCameraIndex = 0;
   bool isVideoSelected = false;
-  final ImagePicker _imagePicker =
-      ImagePicker(); // Create an ImagePicker instance
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -43,7 +48,7 @@ class _AddMealPage extends State<AddMealPage> {
       setState(() {
         _capturedFile = image;
       });
-      _navigateToReviewPage();
+      _navigateToReviewPage(File(_capturedFile!.path));
     } catch (e) {
       print('Error capturing image: $e');
     }
@@ -57,19 +62,24 @@ class _AddMealPage extends State<AddMealPage> {
         setState(() {
           _capturedFile = pickedFile;
         });
-        _navigateToReviewPage();
+        _navigateToReviewPage(File(_capturedFile!.path));
       }
     } catch (e) {
       print('Error picking image from gallery: $e');
     }
   }
 
-  void _navigateToReviewPage() {
+  void _navigateToReviewPage(File capturedFile) {
+    print(capturedFile);
     if (_capturedFile != null) {
+      final donorDataProvider =
+          Provider.of<DonorDataProvider>(context, listen: false);
+
+      donorDataProvider.setImageUrl(capturedFile);
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ReviewPage(mediaFile: _capturedFile),
+          builder: (context) => const ReviewPage(),
         ),
       );
     }
@@ -95,24 +105,24 @@ class _AddMealPage extends State<AddMealPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Row(
+        title: const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Add Meal',
               style: TextStyle(color: Colors.white),
             ),
-            TextButton(
-                onPressed: () {
-                  _navigateToReviewPage();
-                },
-                child: Text(
-                  'Next',
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: MediaQuery.of(context).size.height * 0.022),
-                ))
+            // TextButton(
+            //     onPressed: () {
+            //       _navigateToReviewPage(File(_capturedFile!.path));
+            //     },
+            //     child: Text(
+            //       'Next',
+            //       style: TextStyle(
+            //           color: Colors.blue,
+            //           fontWeight: FontWeight.bold,
+            //           fontSize: MediaQuery.of(context).size.height * 0.022),
+            //     ))
           ],
         ),
         automaticallyImplyLeading: false,
@@ -191,7 +201,7 @@ class _AddMealPage extends State<AddMealPage> {
                           color: Colors.white,
                           size: MediaQuery.of(context).size.height * 0.040,
                         ),
-                        onPressed: _pickFromGallery, // Pick image from gallery
+                        onPressed: _pickFromGallery,
                       ),
                     ],
                   ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/login_page.dart';
-import 'package:quick_social/pages/profile_image.dart';
 import 'package:quick_social/widgets/app_logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

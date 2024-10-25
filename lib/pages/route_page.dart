@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/widgets/image_picker.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
@@ -21,7 +20,7 @@ class _RoutePage extends State<RoutePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.network(
-              'https://s3.amazonaws.com/images.seroundtable.com/google-maps-avg-reviews-restaurants-nyc-1623448326.png', // Valid image URL
+              'https://s3.amazonaws.com/images.seroundtable.com/google-maps-avg-reviews-restaurants-nyc-1623448326.png',
               scale: 1.0,
               fit: BoxFit.cover,
               height: MediaQuery.of(context).size.height * 0.75,

@@ -1,10 +1,7 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:quick_social/pages/home_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProfileProvider with ChangeNotifier {
   String _uuid = '';
@@ -104,6 +101,4 @@ class UserProfileProvider with ChangeNotifier {
     _status = status;
     notifyListeners();
   }
-
-  
 }

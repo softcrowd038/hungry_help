@@ -5,7 +5,7 @@ class AppLogo extends StatefulWidget {
   const AppLogo({super.key});
 
   @override
-  _AppLogoState createState() => _AppLogoState();
+  State<StatefulWidget> createState() => _AppLogoState();
 }
 
 class _AppLogoState extends State<AppLogo> with SingleTickerProviderStateMixin {

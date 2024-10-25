@@ -1,19 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:quick_social/pages/add_location_data.dart';
+import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
 
 class AddMealDetails extends StatefulWidget {
-  final XFile? mediaFile;
-  final String description;
-  const AddMealDetails(
-      {super.key, required this.mediaFile, required this.description});
+  const AddMealDetails({super.key});
 
   @override
-  _AddMealDetailsState createState() => _AddMealDetailsState();
+  State<StatefulWidget> createState() => _AddMealDetailsState();
 }
 
 class _AddMealDetailsState extends State<AddMealDetails> {
@@ -28,6 +26,7 @@ class _AddMealDetailsState extends State<AddMealDetails> {
 
   @override
   Widget build(BuildContext context) {
+    final donorDataProvider = Provider.of<DonorDataProvider>(context);
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
@@ -101,12 +100,12 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          if (widget.mediaFile != null)
+                          if (donorDataProvider.imageurl != null)
                             ClipRRect(
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.01),
                               child: Image.file(
-                                File(widget.mediaFile!.path),
+                                File(donorDataProvider.imageurl!.path),
                                 width: MediaQuery.of(context).size.height * 0.1,
                                 height:
                                     MediaQuery.of(context).size.height * 0.1,
@@ -127,7 +126,7 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                                     MediaQuery.of(context).size.height *
                                         0.0080),
                                 child: Text(
-                                  widget.description,
+                                  donorDataProvider.description,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -151,7 +150,7 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                         );
                         if (pickedDate != null) {
                           String formattedDate =
-                              "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                              '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
                           setState(() {
                             _expiryDateEditingController.text = formattedDate;
                           });
@@ -203,13 +202,14 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
+                        donorDataProvider
+                            .setDonationDate(_expiryDateEditingController.text);
+                        donorDataProvider
+                            .setDonationTime(_expirytimeEditingController.text);
+                        donorDataProvider
+                            .setQuantity(_quantityEditingController.text);
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => AddLocationData(
-                                description: widget.description,
-                                expiryDate: _expiryDateEditingController.text,
-                                expiryTime: _expirytimeEditingController.text,
-                                mediaFile: widget.mediaFile,
-                                quantiy: _quantityEditingController.text)));
+                            builder: (context) => const AddLocationData()));
                       },
                       child: const ButtonWidget(
                         borderRadius: 0.06,
