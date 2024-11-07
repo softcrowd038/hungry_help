@@ -23,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
-  final String _registerUrl = 'http://192.168.1.2:8080/api/v1/register';
+  final String _registerUrl = 'http://192.168.1.4:8080/api/v1/register';
   Future<void> _registerUser() async {
     if (!_globalKey.currentState!.validate()) {
       return;
@@ -97,24 +97,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Username',
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.person),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Username is required';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 TextFieldWidget(
                   controller: _emailController,
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.email),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email is required';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 TextFieldWidget(
                   controller: _passwordController,
@@ -122,12 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.lock),
                   obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password is required';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 TextFieldWidget(
                   controller: _reentrController,
@@ -135,12 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.lock),
                   obscureText: true,
-                  validator: (value) {
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 _isLoading
                     ? const CircularProgressIndicator()
@@ -154,17 +134,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           textFontSize: 0.022,
                         ),
                       ),
-                GestureDetector(
-                  onTap: () { 
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginPage(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Already have an account? '),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const LoginPage()));
+                      },
+                      child: const Text(
+                        'Sign In',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.w700),
                       ),
-                    );
-                  },
-                  child: const Text('Already have an account? Log in'),
-                ),
+                    )
+                  ],
+                )
               ],
             ),
           ),

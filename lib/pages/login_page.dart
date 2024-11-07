@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/profile_image.dart';
+import 'package:quick_social/pages/register_page.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final String _loginUrl = 'http://192.168.1.2:8080/api/v1/login';
+  final String _loginUrl = 'http://192.168.1.4:8080/api/v1/login';
 
   Future<void> _loginUser() async {
     if (!_globalKey.currentState!.validate()) {
@@ -114,12 +115,7 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.person),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email is required';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 TextFieldWidget(
                   controller: _passwordController,
@@ -127,12 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.text,
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password is required';
-                    }
-                    return null;
-                  },
+                  validator: (value) {},
                 ),
                 Padding(
                   padding: EdgeInsets.all(
@@ -162,6 +153,23 @@ class _LoginPageState extends State<LoginPage> {
                           textFontSize: 0.022,
                         ),
                       ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Not created account yet? '),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const RegisterPage()));
+                      },
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                            color: Colors.blue, fontWeight: FontWeight.w700),
+                      ),
+                    )
+                  ],
+                )
               ],
             ),
           ),
