@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/pages/add_location_data.dart';
@@ -7,7 +6,7 @@ import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
 
-class AddMealDetails extends StatefulWidget {
+class AddMealDetails extends StatefulWidget { 
   const AddMealDetails({super.key});
 
   @override

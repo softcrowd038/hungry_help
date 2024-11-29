@@ -1,6 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/route_page.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmOrder extends StatefulWidget {
   const ConfirmOrder({super.key});
@@ -10,6 +18,33 @@ class ConfirmOrder extends StatefulWidget {
 }
 
 class _ConfirmOrder extends State<ConfirmOrder> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<dynamic> _getClosestInformerDetails(
+      String donorUUID, String informerUUID) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final authToken = prefs.getString('auth_token');
+    final url =
+        Uri.parse('$baseUrl/closest-informers/$donorUUID/$informerUUID');
+    try {
+      final response =
+          await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404 || response.statusCode == 500) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
+      } else {
+        throw Exception('Error fetching Data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

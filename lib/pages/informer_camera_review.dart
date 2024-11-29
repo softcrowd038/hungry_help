@@ -105,7 +105,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.4:8080/api/v1/informer');
+      final url = Uri.parse('http://192.168.1.3:8080/api/v1/informer');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid!;
@@ -116,6 +116,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
       request.fields['location'] = _locationNameController.text;
       request.fields['latitude'] = _latitude.toString();
       request.fields['longitude'] = _longitude.toString();
+      request.fields['status'] = 'active';
 
       if (informerProfileProvider.imageurl != null) {
         request.files.add(await http.MultipartFile.fromPath(

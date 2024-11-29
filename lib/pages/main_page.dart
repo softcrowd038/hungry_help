@@ -1,12 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
-import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/informer_capture_image.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
+import 'package:quick_social/services/closest_informer_service.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
 import 'package:quick_social/widgets/layout/role_box.dart';
@@ -21,6 +20,35 @@ class MainPage extends StatefulWidget {
 
 class _MainPage extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<dynamic> data = [];
+  final ClosestInformerService _service = ClosestInformerService();
+
+  @override
+  void initState() {
+    super.initState();
+    postData();
+    fetchData();
+  }
+
+  Future<void> postData() async {
+    try {
+      await _service.postClosestLocationData();
+    } catch (e) {
+      throw Exception('Error, $e');
+    }
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final closestData = await _service.getClosestLocation();
+      setState(() {
+        data = closestData;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -35,7 +63,6 @@ class _MainPage extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppData appData = AppData();
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
@@ -159,18 +186,26 @@ class _MainPage extends State<MainPage> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: appData.addresses.length,
-                  itemBuilder: (context, index) {
-                    return NeedyPeopleBox(
-                      text: appData.addresses[index],
-                      icon: Icons.place,
-                      textFontSize: 0.018,
-                      height: 0.10,
-                      width: 1,
-                    );
-                  },
-                ),
+                child: data.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final item = data[index];
+                          return NeedyPeopleBox(
+                            text: item['location'] ?? 'Location not available',
+                            icon: Icons.place,
+                            textFontSize: 0.018,
+                            height: 0.10,
+                            width: 1,
+                          );
+                        },
+                      )
+                    : const Center(
+                        child: Text(
+                          'No nearby locations found',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
               ),
             ],
           ),

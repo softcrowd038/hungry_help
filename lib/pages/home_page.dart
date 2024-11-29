@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// tablet & desktop screen
   NavigationRail _navigationRail(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
@@ -110,7 +109,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// mobile screen
   NavigationBar _navigationBar(BuildContext context) {
     final theme = Theme.of(context);
     return NavigationBar(

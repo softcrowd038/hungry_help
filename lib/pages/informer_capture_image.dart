@@ -23,7 +23,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
   int _selectedCameraIndex = 0;
   bool isVideoSelected = false;
   final ImagePicker _imagePicker =
-      ImagePicker(); // Create an ImagePicker instance
+      ImagePicker(); 
 
   @override
   void initState() {

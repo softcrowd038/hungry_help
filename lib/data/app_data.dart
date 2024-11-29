@@ -7,3 +7,5 @@ class AppData {
     '2468 Birch Road Miami, FL 33101 United States',
   ];
 }
+
+String baseUrl = 'http://192.168.1.3:8080/api/v1';

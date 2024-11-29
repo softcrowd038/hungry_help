@@ -99,7 +99,7 @@ class _AddLocationData extends State<AddLocationData> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.4:8080/api/v1/donormeal');
+      final url = Uri.parse('http://192.168.1.3:8080/api/v1/donormeal');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid!;
