@@ -44,7 +44,12 @@ dependencies:
   http:
   shared_preferences:
   intl:
-  provider: 
+  provider:
+  flutter_polyline_points:
+  google_maps_flutter:
+  permission_handler:
+  geolocator:
+  giffy_dialog: 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

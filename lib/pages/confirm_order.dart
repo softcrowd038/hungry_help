@@ -1,47 +1,75 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:quick_social/data/app_data.dart';
-import 'package:quick_social/pages/login_page.dart';
-import 'package:quick_social/pages/route_page.dart';
+import 'package:intl/intl.dart';
+import 'package:quick_social/pages/delivery_live_location.dart';
+import 'package:quick_social/services/closest_informer_service.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfirmOrder extends StatefulWidget {
-  const ConfirmOrder({super.key});
+  final String informerId;
+  const ConfirmOrder({super.key, required this.informerId});
 
   @override
   State<StatefulWidget> createState() => _ConfirmOrder();
 }
 
 class _ConfirmOrder extends State<ConfirmOrder> {
+  final ClosestInformerService _service = ClosestInformerService();
+  Map<String, dynamic> closestInformerData = {};
+  Map<String, dynamic> updateFields = {
+    'status': 'confirmed',
+  };
+
   @override
   void initState() {
     super.initState();
+    fetchData();
   }
 
-  Future<dynamic> _getClosestInformerDetails(
-      String donorUUID, String informerUUID) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final authToken = prefs.getString('auth_token');
-    final url =
-        Uri.parse('$baseUrl/closest-informers/$donorUUID/$informerUUID');
+  Future<void> fetchData() async {
     try {
-      final response =
-          await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404 || response.statusCode == 500) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+      var data =
+          await _service.getClosestInformerDetails(context, widget.informerId);
+
+      if (data != null && data.isNotEmpty) {
+        setState(() {
+          closestInformerData = data[0];
+        });
       } else {
-        throw Exception('Error fetching Data');
+        throw Exception('No data available or unexpected structure');
       }
     } catch (e) {
       throw Exception('Error: $e');
+    }
+  }
+
+  String formatDate(String date) {
+    try {
+      DateTime parsedDate = DateTime.parse(date);
+      return DateFormat('EEEE, MMMM d, yyyy').format(parsedDate);
+    } catch (e) {
+      return 'Invalid Date';
+    }
+  }
+
+  String formatTime(String time) {
+    try {
+      DateFormat inputFormat = DateFormat('HH:mm:ss');
+      DateFormat outputFormat = DateFormat('hh:mm a');
+      DateTime parsedTime = inputFormat.parse(time);
+      return outputFormat.format(parsedTime);
+    } catch (e) {
+      return 'Invalid Time';
+    }
+  }
+
+  String calculateDistance(String distance) {
+    try {
+      final distanceValue = double.tryParse(distance) ?? 0.0;
+      return distanceValue < 1
+          ? '${(distanceValue * 1000).toStringAsFixed(0)} m'
+          : '${distanceValue.toStringAsFixed(2)} km';
+    } catch (e) {
+      return 'Distance unavailable';
     }
   }
 
@@ -49,35 +77,172 @@ class _ConfirmOrder extends State<ConfirmOrder> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.network(
-              'https://img.freepik.com/free-vector/thank-you-placard-concept-illustration_114360-13436.jpg', // Valid image URL
-              scale: 1.0,
-              fit: BoxFit.cover,
-              height: 300,
-              width: MediaQuery.of(context).size.width,
-            ),
-            const SizedBox(height: 20),
-            GestureDetector(
-              onTap: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => const RoutePage()));
-              },
-              child: const ButtonWidget(
-                borderRadius: 0.06,
-                height: 0.06,
-                width: 1,
-                text: 'CONFIRM HELP',
-                textFontSize: 0.022,
+      body: closestInformerData.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: SingleChildScrollView(
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).size.height * 0.008,
+                                left:
+                                    MediaQuery.of(context).size.height * 0.015,
+                                right:
+                                    MediaQuery.of(context).size.height * 0.015),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  formatDate(
+                                      closestInformerData['capture_date'] ??
+                                          ''),
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize:
+                                          MediaQuery.of(context).size.height *
+                                              0.016),
+                                ),
+                                Text(
+                                  formatTime(
+                                      closestInformerData['capture_time'] ??
+                                          'N/A'),
+                                  style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize:
+                                          MediaQuery.of(context).size.height *
+                                              0.016),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Image.network(
+                            'http://192.168.1.4:8080/${closestInformerData['imageurl']}',
+                            scale: 1.0,
+                            fit: BoxFit.cover,
+                            height: MediaQuery.of(context).size.height * 0.50,
+                            width: MediaQuery.of(context).size.width,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(
+                                MediaQuery.of(context).size.height * 0.015),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.place,
+                                  color: Colors.red,
+                                  size: MediaQuery.of(context).size.height *
+                                      0.035,
+                                ),
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.height *
+                                      0.015,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${closestInformerData['location'] ?? 'N/A'}',
+                                        style: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.020,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black),
+                                        maxLines: 3,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.circle,
+                                            color: Colors.blue,
+                                            size: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.010,
+                                          ),
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.008,
+                                          ),
+                                          Text(
+                                            '${closestInformerData['count'] ?? 'N/A'} found / ${calculateDistance(closestInformerData['distance'])} away',
+                                            style: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.016,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left:
+                                    MediaQuery.of(context).size.height * 0.015,
+                                bottom:
+                                    MediaQuery.of(context).size.height * 0.015),
+                            child: Text(
+                              closestInformerData['description'] ??
+                                  'No Description',
+                              style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.height *
+                                      0.018,
+                                  color: Colors.black),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              _service.updateStatusInformer(
+                                  closestInformerData['informer_uuid'],
+                                  updateFields);
+                              _service.updateStatusClosestInformer(
+                                  widget.informerId, updateFields);
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LiveLocationTracker(
+                                        informerId: closestInformerData[
+                                            'closest_uuid'])),
+                              );
+                            },
+                            child: const ButtonWidget(
+                              borderRadius: 0.06,
+                              height: 0.06,
+                              width: 1,
+                              text: 'START DELIVERY',
+                              textFontSize: 0.018,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

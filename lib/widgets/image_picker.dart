@@ -52,8 +52,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
   Future<void> _captureVideo() async {
     try {
       await _cameraController!.startVideoRecording();
-      await Future.delayed(
-          const Duration(seconds: 5)); // Capture 5 seconds of video
+      await Future.delayed(const Duration(seconds: 30));
       final XFile video = await _cameraController!.stopVideoRecording();
       setState(() {
         _capturedFile = video;
@@ -69,7 +68,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>const ReviewPage(),
+          builder: (context) => const ReviewPage(),
         ),
       );
     }
@@ -85,7 +84,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
 
   void _onSelect(String type) {
     setState(() {
-      isVideoSelected = type == 'Video'; // Update the selection state
+      isVideoSelected = type == 'Video';
     });
   }
 

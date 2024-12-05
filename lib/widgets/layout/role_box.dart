@@ -31,9 +31,9 @@ class _RoleBox extends State<RoleBox> {
             boxShadow: [
               BoxShadow(
                   offset: const Offset(1, 1),
-                  blurRadius: 3,
-                  spreadRadius: 2,
-                  color: Colors.black.withOpacity(0.3))
+                  blurRadius: 8,
+                  spreadRadius: 3,
+                  color: Colors.grey.withOpacity(0.4))
             ],
             borderRadius: BorderRadius.circular(
                 MediaQuery.of(context).size.height * 0.015)),

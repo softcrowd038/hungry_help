@@ -21,13 +21,15 @@ class MainPage extends StatefulWidget {
 class _MainPage extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<dynamic> data = [];
+  List<dynamic> informerData = [];
   final ClosestInformerService _service = ClosestInformerService();
 
   @override
   void initState() {
     super.initState();
-    postData();
+    fetchInformerData();
     fetchData();
+    postData();
   }
 
   Future<void> postData() async {
@@ -43,6 +45,17 @@ class _MainPage extends State<MainPage> {
       final closestData = await _service.getClosestLocation();
       setState(() {
         data = closestData;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> fetchInformerData() async {
+    try {
+      final informerDataAll = await _service.getAllInformers();
+      setState(() {
+        informerData = informerDataAll;
       });
     } catch (e) {
       print('Error fetching data: $e');
@@ -66,6 +79,7 @@ class _MainPage extends State<MainPage> {
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _scaffoldKey,
       appBar: CustomAppBar(
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -197,6 +211,11 @@ class _MainPage extends State<MainPage> {
                             textFontSize: 0.018,
                             height: 0.10,
                             width: 1,
+                            informerUUID: item['closest_uuid'] ??
+                                'Informer UUID is not available',
+                            distance:
+                                item['distance'] ?? 'no distance available',
+                            imageUrl: item['imageurl'] ?? 'no url found',
                           );
                         },
                       )

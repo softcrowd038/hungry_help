@@ -37,43 +37,55 @@ class _AddLocationData extends State<AddLocationData> {
       _isLoadingLocation = true;
     });
 
-    bool serviceEnabled;
-    loc.PermissionStatus permissionGranted;
+    try {
+      bool serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) throw 'Location services disabled';
+      }
 
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
-    }
+      loc.PermissionStatus permissionGranted = await location.hasPermission();
+      if (permissionGranted == loc.PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        if (permissionGranted != loc.PermissionStatus.granted) {
+          throw 'Location permission denied';
+        }
+      }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == loc.PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != loc.PermissionStatus.granted) return;
-    }
+      _currentLocation = await location.getLocation();
+      _latitude = _currentLocation?.latitude;
+      _longitude = _currentLocation?.longitude;
 
-    _currentLocation = await location.getLocation();
-    _latitude = _currentLocation?.latitude;
-    _longitude = _currentLocation?.longitude;
-
-    if (_latitude != null && _longitude != null) {
-      try {
+      if (_latitude != null && _longitude != null) {
         List<Placemark> placemarks =
             await placemarkFromCoordinates(_latitude!, _longitude!);
-        Placemark place = placemarks[0];
 
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks[0];
+          setState(() {
+            _locationName =
+                '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+            _locationNameController.text = _locationName!;
+          });
+        } else {
+          setState(() {
+            _locationNameController.text = 'No address found';
+          });
+        }
+      } else {
         setState(() {
-          _locationName =
-              '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
-          _locationNameController.text = _locationName!;
-          _isLoadingLocation = false;
-        });
-      } catch (e) {
-        setState(() {
-          _locationNameController.text = 'Failed to get location';
-          _isLoadingLocation = false;
+          _locationNameController.text = 'Coordinates unavailable';
         });
       }
+    } catch (e) {
+      print('Error: $e');
+      setState(() {
+        _locationNameController.text = 'Error retrieving location';
+      });
+    } finally {
+      setState(() {
+        _isLoadingLocation = false;
+      });
     }
   }
 
@@ -99,7 +111,7 @@ class _AddLocationData extends State<AddLocationData> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.3:8080/api/v1/donormeal');
+      final url = Uri.parse('http://192.168.1.4:8080/api/v1/donormeal');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid!;
