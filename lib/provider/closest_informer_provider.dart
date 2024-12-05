@@ -4,10 +4,8 @@ import 'package:quick_social/services/closest_informer_service.dart';
 class ClosestInformerProvider with ChangeNotifier {
   final ClosestInformerService _service = ClosestInformerService();
   List<dynamic> _closestInformers = [];
-  List<dynamic> _allInformers = [];
   bool _isLoading = false;
   Map<String, dynamic>? _specificInformer;
-
   List<dynamic> get closestInformers => _closestInformers;
   bool get isLoading => _isLoading;
   Map<String, dynamic>? get specificInformer => _specificInformer;
@@ -31,10 +29,7 @@ class ClosestInformerProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      _allInformers = await _service.getAllInformers();
-    } catch (e) {
-      _allInformers = [];
+    try {} catch (e) {
       debugPrint('Error fetching closest informers: $e');
     } finally {
       _isLoading = false;

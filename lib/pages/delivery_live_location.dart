@@ -22,6 +22,7 @@ class LiveLocationTracker extends StatefulWidget {
 class LiveLocationTrackerState extends State<LiveLocationTracker> {
   gMaps.GoogleMapController? mapController;
   bool _isTextVisible = false;
+  // ignore: unused_field
   bool _showInitialMessage = true;
   bool _showCurrentAddress = false;
   late gMaps.LatLng destinationPosition;
@@ -189,8 +190,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                       });
                     }
 
-                    if (currentPosition != null &&
-                        destinationPosition.latitude != 0.0 &&
+                    if (destinationPosition.latitude != 0.0 &&
                         destinationPosition.longitude != 0.0) {
                       _polylines = {
                         gMaps.Polyline(
