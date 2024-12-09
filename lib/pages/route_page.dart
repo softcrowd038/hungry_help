@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quick_social/widgets/image_picker.dart';
+import 'package:quick_social/widgets/capture_post_image.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
 class RoutePage extends StatefulWidget {

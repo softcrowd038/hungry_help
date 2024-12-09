@@ -1,7 +1,12 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
+import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_social/provider/post_provider.dart';
 import 'package:quick_social/widgets/review_post.dart';
 
 class CaptureImageOrVideoPage extends StatefulWidget {
@@ -16,8 +21,9 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   XFile? _capturedFile;
-  int _selectedCameraIndex = 0; // To track the selected camera
-  bool isVideoSelected = false; // Track selected option
+  int _selectedCameraIndex = 0;
+  bool isVideoSelected = false;
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -28,7 +34,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
   Future<void> _initializeCamera() async {
     _cameras = await availableCameras();
     _cameraController = CameraController(
-      _cameras![_selectedCameraIndex], // Use the selected camera
+      _cameras![_selectedCameraIndex],
       ResolutionPreset.high,
     );
 
@@ -43,6 +49,10 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
       setState(() {
         _capturedFile = image;
       });
+
+      Provider.of<PostProvider>(context, listen: false)
+          .setPostUrl(File(_capturedFile!.path));
+      Provider.of<PostProvider>(context, listen: false).setType('image');
       _navigateToReviewPage();
     } catch (e) {
       print('Error capturing image: $e');
@@ -57,6 +67,9 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
       setState(() {
         _capturedFile = video;
       });
+      Provider.of<PostProvider>(context, listen: false)
+          .setPostUrl(File(_capturedFile!.path));
+      Provider.of<PostProvider>(context, listen: false).setType('video');
       _navigateToReviewPage();
     } catch (e) {
       print('Error capturing video: $e');
@@ -68,9 +81,45 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const ReviewPage(),
+          builder: (context) => const ReviewPostPage(),
         ),
       );
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    try {
+      final XFile? pickedFile =
+          await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _capturedFile = pickedFile;
+        });
+        Provider.of<PostProvider>(context, listen: false)
+            .setPostUrl(File(_capturedFile!.path));
+        Provider.of<PostProvider>(context, listen: false).setType('image');
+        _navigateToReviewPage();
+      }
+    } catch (e) {
+      print('Error picking image from gallery: $e');
+    }
+  }
+
+  Future<void> _pickVideoFromGallery() async {
+    try {
+      final XFile? pickedFile =
+          await _imagePicker.pickVideo(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _capturedFile = pickedFile;
+        });
+        Provider.of<PostProvider>(context, listen: false)
+            .setPostUrl(File(_capturedFile!.path));
+        Provider.of<PostProvider>(context, listen: false).setType('video');
+        _navigateToReviewPage();
+      }
+    } catch (e) {
+      print('Error picking image from gallery: $e');
     }
   }
 
@@ -107,7 +156,9 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
           : Stack(
               children: [
                 Positioned.fill(
-                  child: CameraPreview(_cameraController!),
+                  child: AspectRatio(
+                      aspectRatio: 1.0 / 1.0,
+                      child: CameraPreview(_cameraController!)),
                 ),
                 Positioned(
                   bottom: 100.0,
@@ -198,6 +249,16 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
                           size: MediaQuery.of(context).size.height * 0.040,
                         ),
                         onPressed: _switchCamera,
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.photo_library,
+                          color: Colors.white,
+                          size: MediaQuery.of(context).size.height * 0.040,
+                        ),
+                        onPressed: isVideoSelected
+                            ? _pickVideoFromGallery
+                            : _pickFromGallery,
                       ),
                     ],
                   ),

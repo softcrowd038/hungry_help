@@ -8,7 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart' as gMaps;
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/live_location_provider.dart';
 import 'package:quick_social/services/closest_informer_service.dart';
-import 'package:quick_social/widgets/image_picker.dart';
+import 'package:quick_social/widgets/capture_post_image.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
 class LiveLocationTracker extends StatefulWidget {

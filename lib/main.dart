@@ -5,6 +5,7 @@ import 'package:quick_social/provider/closest_informer_provider.dart';
 import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/provider/informer_data_provider.dart';
 import 'package:quick_social/provider/live_location_provider.dart';
+import 'package:quick_social/provider/post_provider.dart';
 import 'package:quick_social/provider/profile_data_provider.dart';
 
 void main() => runApp(
@@ -24,6 +25,9 @@ void main() => runApp(
           ),
           ChangeNotifierProvider(
             create: (_) => LocationProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => PostProvider(),
           ),
         ],
         child: const MyApp(),
