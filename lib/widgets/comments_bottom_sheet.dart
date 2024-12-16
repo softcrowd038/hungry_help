@@ -1,39 +1,131 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/models.dart';
+import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/widgets/comment_tile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class CommentsBottomSheet extends StatefulWidget {
-  const CommentsBottomSheet({super.key, required this.post});
-
-  static Future<void> showCommentsBottomSheet(
-    BuildContext context, {
-    required Post post,
-  }) async {
-    return await showModalBottomSheet(
-      context: context,
-      useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      enableDrag: true,
-      isScrollControlled: true,
-      builder: (_) => CommentsBottomSheet(post: post),
-    );
-  }
-
-  final Post post;
+  final String? postUuid;
+  const CommentsBottomSheet({super.key, required this.postUuid});
 
   @override
   State<CommentsBottomSheet> createState() => _CommentsBottomSheetState();
 }
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
-  List<Comment> _comments = [];
+  List<String> _comments = [];
+  List<String> _uuid = [];
+
+  TextEditingController _commentText = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _comments = widget.post.comments;
+    initalizeData();
+  }
+
+  void initalizeData() async {
+    await getCommentsByPostUUID();
+  }
+
+  Future<void> postComment(
+    BuildContext context,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    final uuid = prefs.getString('user_uuid');
+
+    if (token == null || uuid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('User authentication token or UUID is missing.')),
+      );
+      return;
+    }
+
+    final Uri url = Uri.parse('$baseUrl/createcomment');
+
+    final Map<String, dynamic> body = {
+      'post_uuid': widget.postUuid,
+      'user_uuid': uuid,
+      'comment': _commentText.text,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 201) {
+        final jsonResponse = json.decode(response.body);
+        print(jsonResponse['message'] ?? 'Like status posted successfully.');
+        Navigator.pop(context);
+      } else {
+        final jsonResponse = json.decode(response.body);
+        final message = jsonResponse['message'] ?? 'Failed to post like status';
+        print('Error posting like status: ${response.statusCode} - $message');
+      }
+    } catch (e) {
+      print('Error posting like status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('An error occurred while posting like status.')),
+      );
+    }
+  }
+
+  Future<void> getCommentsByPostUUID() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final authToken = sharedPreferences.getString('auth_token');
+    final url = Uri.parse('$baseUrl/getcommentsbypostuuid/${widget.postUuid}');
+
+    if (authToken == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $authToken'},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['data'] is List) {
+          List<dynamic> commentData = data['data'];
+          print(commentData);
+          setState(() {
+            _comments =
+                commentData.map<String>((item) => item['comment']).toList();
+            _uuid =
+                commentData.map<String>((item) => item['user_uuid']).toList();
+          });
+          print(_comments);
+        } else {
+          throw Exception('Invalid response structure or missing data.');
+        }
+      } else {
+        throw Exception('Unexpected status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching comments: $e');
+      throw Exception('Error: $e');
+    }
   }
 
   @override
@@ -54,18 +146,26 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                 top: Radius.circular(20),
               ),
             ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _comments.length,
-              itemBuilder: (_, index) {
-                return index == 0
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: CommentTile(comment: _comments[index]),
-                      )
-                    : CommentTile(comment: _comments[index]);
-              },
-            ),
+            child: _comments.isEmpty
+                ? const Center(child: Text("No comments to display."))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _comments.length,
+                    itemBuilder: (_, index) {
+                      return index == 0
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: CommentTile(
+                                comment: _comments[index],
+                                uuid: _uuid[index],
+                              ),
+                            )
+                          : CommentTile(
+                              comment: _comments[index],
+                              uuid: _uuid[index],
+                            );
+                    },
+                  ),
           ),
         ),
         Align(
@@ -121,11 +221,15 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
         children: [
           Flexible(
             child: TextField(
-              controller: controller,
+              controller: _commentText,
               autofocus: true,
-              onSubmitted: _submitComment,
+              onSubmitted: (value) {
+                postComment(
+                  context,
+                );
+              },
               decoration: InputDecoration(
-                hintText: 'Tulis sesuatu',
+                hintText: 'Write your comment',
                 filled: true,
                 isDense: true,
                 fillColor: theme.colorScheme.surface,
@@ -139,25 +243,15 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
           const SizedBox(width: 4),
           IconButton(
             onPressed: () {
-              if (controller.text.isEmpty) return;
-              _submitComment(controller.text);
+              if (_commentText.text.isEmpty) return;
+              postComment(
+                context,
+              );
             },
             icon: const Icon(Icons.send),
           ),
         ],
       ),
     );
-  }
-
-  void _submitComment(String text) {
-    setState(() {
-      _comments.add(
-        Comment(
-          owner: User.dummyUsers[0],
-          body: text,
-          likeCount: 0,
-        ),
-      );
-    });
   }
 }

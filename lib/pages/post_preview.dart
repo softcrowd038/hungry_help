@@ -120,7 +120,7 @@ class _PostPreview extends State<PostPreview> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.4:8080/api/v1/create');
+      final url = Uri.parse('http://192.168.1.3:8080/api/v1/create');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid;
@@ -243,7 +243,7 @@ class _PostPreview extends State<PostPreview> {
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.15),
                               child: Image.network(
-                                'http://192.168.1.4:8080/${userProfile['imageurl']}',
+                                'http://192.168.1.3:8080/${userProfile['imageurl']}',
                                 height:
                                     MediaQuery.of(context).size.height * 0.07,
                                 width:
@@ -355,7 +355,7 @@ class _PostPreview extends State<PostPreview> {
                                                         .height *
                                                     0.025))),
                                     child: AspectRatio(
-                                      aspectRatio: 1.0 / 1.0,
+                                      aspectRatio: 1 / 1,
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.only(
                                             bottomLeft: Radius.circular(
@@ -370,7 +370,7 @@ class _PostPreview extends State<PostPreview> {
                                                     0.025)),
                                         child: Image.file(
                                           File(postProvider.postUrl!.path),
-                                          fit: BoxFit.contain,
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
                                     ),

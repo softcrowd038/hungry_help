@@ -47,7 +47,7 @@ class _NeedyPeopleBox extends State<NeedyPeopleBox> {
                   borderRadius: BorderRadius.circular(
                       MediaQuery.of(context).size.height * 0.075),
                   child: Image.network(
-                    'http://192.168.1.4:8080/${widget.imageUrl}',
+                    'http://192.168.1.3:8080/${widget.imageUrl}',
                     fit: BoxFit.cover,
                   ),
                 )),

@@ -1,11 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
-
+// ignore_for_file: use_build_context_synchronously, avoid_print
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:quick_social/models/models.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
+import 'package:http/http.dart' as http;
 import 'package:quick_social/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +18,15 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
+  Map<String, dynamic> data = {};
+  bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    getPosts();
+  }
 
   Future<void> _logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -31,9 +40,56 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
+  void _handleError(http.Response response) {
+    if (response.statusCode == 500) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      print('Error: ${response.body}');
+    }
+  }
+
+  
+
+  Future<void> getPosts() async {
+    final url = Uri.parse('$baseUrl/getposts');
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final authToken = sharedPreferences.getString('auth_token');
+
+    if (authToken == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+      return;
+    }
+
+    try {
+      final response =
+          await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        setState(() {
+          data = jsonDecode(response.body);
+          _isLoading = false;
+        });
+      } else {
+        _handleError(response);
+      }
+    } catch (e) {
+      print('Error fetching posts: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: CustomAppBar(
@@ -93,27 +149,27 @@ class _FeedPageState extends State<FeedPage> {
           ],
         ),
       ),
-      body: ResponsivePadding(
-        child: ListView(
-          children: [
-            ListView.separated(
-              itemCount: Post.dummyPosts.length,
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              separatorBuilder: (_, index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.height * 0.016,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ResponsivePadding(
+              child: ListView(
+                children: [
+                  ListView.builder(
+                    itemCount: data['data'] != null ? data['data'].length : 0,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (_, index) {
+                      var post = data['data'][index];
+                      return PostCard(
+                        uuid: post['uuid'],
+                        postUuid: post['post_uuid'],
+                        initialCount: post['likes'],
+                      );
+                    },
                   ),
-                  child: Divider(
-                      height: MediaQuery.of(context).size.height * 0.004),
-                );
-              },
-              itemBuilder: (_, index) => PostCard(post: Post.dummyPosts[index]),
-            )
-          ],
-        ),
-      ),
+                ],
+              ),
+            ),
     );
   }
 }

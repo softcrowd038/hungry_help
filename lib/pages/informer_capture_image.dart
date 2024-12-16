@@ -1,7 +1,4 @@
-// ignore_for_file: avoid_print
-
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +19,8 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
   XFile? _capturedFile;
   int _selectedCameraIndex = 0;
   bool isVideoSelected = false;
-  final ImagePicker _imagePicker =
-      ImagePicker(); 
+  final ImagePicker _imagePicker = ImagePicker();
+  double _zoomLevel = 1.0; 
 
   @override
   void initState() {
@@ -36,6 +33,8 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
     _cameraController = CameraController(
       _cameras![_selectedCameraIndex],
       ResolutionPreset.high,
+      enableAudio: true,
+      fps: 24,
     );
 
     await _cameraController!.initialize();
@@ -132,7 +131,16 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
           : Stack(
               children: [
                 Positioned.fill(
-                  child: CameraPreview(_cameraController!),
+                  child: GestureDetector(
+                    onScaleUpdate: (details) {
+                      setState(() {
+                        _zoomLevel =
+                            (_zoomLevel * details.scale).clamp(1.0, 5.0);
+                        _cameraController!.setZoomLevel(_zoomLevel);
+                      });
+                    },
+                    child: CameraPreview(_cameraController!),
+                  ),
                 ),
                 Positioned(
                   bottom: 100.0,
@@ -201,7 +209,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
                           color: Colors.white,
                           size: MediaQuery.of(context).size.height * 0.040,
                         ),
-                        onPressed: _pickFromGallery, // Pick image from gallery
+                        onPressed: _pickFromGallery,
                       ),
                     ],
                   ),

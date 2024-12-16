@@ -105,7 +105,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.4:8080/api/v1/informer');
+      final url = Uri.parse('http://192.168.1.3:8080/api/v1/informer');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid!;

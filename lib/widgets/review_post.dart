@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:quick_social/pages/post_preview.dart';
 import 'package:quick_social/provider/post_provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:image_cropper/image_cropper.dart'; // Add this import
+import 'package:image_cropper/image_cropper.dart';
 
 class ReviewPostPage extends StatefulWidget {
   const ReviewPostPage({
@@ -20,41 +20,15 @@ class ReviewPostPage extends StatefulWidget {
 class _ReviewPostPageState extends State<ReviewPostPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  VideoPlayerController? _videoController;
-  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
   }
 
-  void _initializeVideo(PostProvider postProvider) async {
-    _videoController =
-        VideoPlayerController.file(File(postProvider.postUrl!.path))
-          ..initialize().then((_) {
-            setState(() {});
-            _videoController!.setLooping(false);
-          });
-  }
-
-  void _togglePlayPause() {
-    setState(() {
-      if (_isPlaying) {
-        _videoController!.pause();
-      } else {
-        _videoController!.play();
-      }
-      _isPlaying = !_isPlaying;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
-    print(postProvider.type);
-    if (postProvider.type == 'video' && _videoController == null) {
-      _initializeVideo(postProvider);
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -86,14 +60,11 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
           child: Column(
             children: [
-              if (postProvider.type == 'video')
-                _buildVideoPreview(postProvider)
-              else
-                _buildImagePreview(postProvider),
-              const SizedBox(height: 10),
+              _buildImagePreview(postProvider),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.010),
               TextField(
                 controller: _titleController,
                 decoration: const InputDecoration(
@@ -126,7 +97,7 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
         if (snapshot.hasData) {
           final size = snapshot.data!;
           final aspectRatio = size.width / size.height;
-          return Column(
+          return Stack(
             children: [
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -143,16 +114,33 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
                   );
                 },
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  final croppedFile =
-                      await _cropImage(File(postProvider.postUrl!.path));
-                  if (croppedFile != null) {
-                    // Update the post provider with the cropped image
-                    postProvider.setPostUrl(croppedFile);
-                  }
-                },
-                child: const Text('Edit Image'),
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.010,
+                right: MediaQuery.of(context).size.height * 0.010,
+                child: GestureDetector(
+                  onTap: () async {
+                    final croppedFile =
+                        await _cropImage(File(postProvider.postUrl!.path));
+                    if (croppedFile != null) {
+                      postProvider.setPostUrl(croppedFile);
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(
+                            MediaQuery.of(context).size.height * 0.040)),
+                    child: Padding(
+                      padding: EdgeInsets.all(
+                          MediaQuery.of(context).size.height * 0.008),
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.height * 0.020,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           );
@@ -163,42 +151,10 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
     );
   }
 
-  Widget _buildVideoPreview(PostProvider postProvider) {
-    return _videoController != null
-        ? Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: VideoPlayer(_videoController!),
-              ),
-              Positioned(
-                top: MediaQuery.of(context).size.height * 0.35,
-                left: MediaQuery.of(context).size.width * 0.35,
-                child: IconButton(
-                  icon: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 40.0,
-                    color: Colors.white,
-                  ),
-                  onPressed: _togglePlayPause,
-                ),
-              ),
-            ],
-          )
-        : const Center(child: CircularProgressIndicator());
-  }
-
-  @override
-  void dispose() {
-    if (_videoController != null) {
-      _videoController!.dispose();
-    }
-    super.dispose();
-  }
-
   Future<Size> _getImageSize(File imageFile) async {
     final completer = Completer<Size>();
     final image = Image.file(imageFile);
+
     image.image.resolve(const ImageConfiguration()).addListener(
       ImageStreamListener((ImageInfo info, bool _) {
         completer.complete(
@@ -209,13 +165,14 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
   }
 
   Future<File?> _cropImage(File imageFile) async {
+    final ThemeData theme = Theme.of(context);
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: imageFile.path,
-      aspectRatio:const  CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+      aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Edit Image',
-          toolbarColor: Colors.blue,
+          toolbarColor: theme.colorScheme.primary,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,

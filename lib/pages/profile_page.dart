@@ -1,9 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:quick_social/common/common.dart';
-import 'package:quick_social/models/models.dart';
-import 'package:quick_social/widgets/widgets.dart';
+import 'dart:convert';
 
-class ProfilePage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:quick_social/common/common.dart';
+import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/models/models.dart';
+import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/widgets/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ProfilePage extends StatefulWidget {
   ProfilePage({
     super.key,
     required this.user,
@@ -24,6 +30,68 @@ class ProfilePage extends StatelessWidget {
   final List<Post> posts;
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  Map<String, dynamic> profileData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  void initializeData() async {
+    await getUsers();
+  }
+
+  Future<void> getUsers() async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final authToken = sharedPreferences.getString('auth_token');
+    final uuid = sharedPreferences.getString('user_uuid');
+
+    final url = Uri.parse('$baseUrl/profile/$uuid');
+
+    if (authToken == null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+      return;
+    }
+
+    try {
+      final response =
+          await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final profile = jsonDecode(response.body)['userProfile'];
+        if (profile != null) {
+          setState(() {
+            profileData = profile;
+          });
+        }
+      } else {
+        _handleError(response);
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
+
+  void _handleError(http.Response response) {
+    if (response.statusCode == 500) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    } else {
+      print('Error: ${response.body}');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -35,7 +103,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             _bannerAndProfilePicture(context),
             _userBio(context),
-            UserPostsTabView(posts: posts),
+            UserPostsTabView(uuid: profileData['uuid'] ?? ''),
           ],
         ),
       ),
@@ -54,7 +122,7 @@ class ProfilePage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                isNavigatorPushed
+                widget.isNavigatorPushed
                     ? IconButton.filledTonal(
                         onPressed: () => context.pop(),
                         style: IconButton.styleFrom(
@@ -73,7 +141,7 @@ class ProfilePage extends StatelessWidget {
                     backgroundColor: theme.colorScheme.primary.withAlpha(75),
                   ),
                   icon: Icon(
-                    user.isMe ? Icons.settings : Icons.more_vert,
+                    widget.user.isMe ? Icons.edit : Icons.more_vert,
                     color: Colors.white,
                   ),
                 ),
@@ -88,6 +156,8 @@ class ProfilePage extends StatelessWidget {
   Widget _bannerAndProfilePicture(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final imageUrl = profileData['imageurl'];
+
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
@@ -96,7 +166,7 @@ class ProfilePage extends StatelessWidget {
             ConstrainedBox(
               constraints: const BoxConstraints.expand(height: 200),
               child: Image.network(
-                user.bannerImage,
+                widget.user.bannerImage,
                 fit: BoxFit.fitWidth,
               ),
             ),
@@ -109,7 +179,7 @@ class ProfilePage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        user.followersCount.toString(),
+                        widget.user.followersCount.toString(),
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -122,7 +192,7 @@ class ProfilePage extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        user.followingCount.toString(),
+                        widget.user.followingCount.toString(),
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -141,13 +211,16 @@ class ProfilePage extends StatelessWidget {
           height: MediaQuery.of(context).size.height * 0.100,
           child: FittedBox(
             child: Container(
+              height: MediaQuery.of(context).size.height * 0.120,
+              width: MediaQuery.of(context).size.height * 0.120,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 shape: BoxShape.circle,
               ),
-              child: UserStoryAvatar(
-                userStory: story,
-                onTap: () {},
+              child: CircleAvatar(
+                backgroundImage: imageUrl != null
+                    ? NetworkImage('http://192.168.1.3:8080/$imageUrl')
+                    : const AssetImage('assets/placeholder_avatar.png'),
               ),
             ),
           ),
@@ -166,25 +239,16 @@ class ProfilePage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            user.fullname,
+            '${profileData['firstname'] ?? ''} ${profileData['lastname'] ?? ''}',
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text('@${user.username}', style: textTheme.bodyMedium),
+          Text('@${profileData['username'] ?? ''}',
+              style: textTheme.bodyMedium),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.004,
           ),
-          Text(
-            user.bio,
-            style: textTheme.bodySmall,
-            textAlign: TextAlign.center,
-          ),
-          user.isMe
-              ? SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.024,
-                )
-              : _profileButtons(context),
         ],
       ),
     );

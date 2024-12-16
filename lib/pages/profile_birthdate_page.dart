@@ -57,7 +57,7 @@ class _ProfileBirthdatePage extends State<ProfileBirthdatePage> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.4:8080/api/v1/profiledetails');
+      final url = Uri.parse('http://192.168.1.3:8080/api/v1/profiledetails');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid;

@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final String _loginUrl = 'http://192.168.1.4:8080/api/v1/login';
+  final String _loginUrl = 'http://192.168.1.3:8080/api/v1/login';
 
   Future<void> _loginUser() async {
     if (!_globalKey.currentState!.validate()) {
