@@ -1,9 +1,11 @@
-import 'dart:convert';
+// ignore_for_file: avoid_print
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/widgets/post_preview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
@@ -60,19 +62,22 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
           });
         }
       } else {
+        setState(() {
+          postData = [];
+        });
         _handleError(response);
       }
     } catch (e) {
+      setState(() {
+        postData = [];
+      });
       print('Error fetching Post data: $e');
     }
   }
 
   void _handleError(http.Response response) {
     if (response.statusCode == 500) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      print(response.body);
     } else {
       print('Error: ${response.body}');
     }
@@ -89,6 +94,18 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
   }
 
   Widget _postsGridView(BuildContext context) {
+    if (postData == null || postData.isEmpty) {
+      return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.5,
+        child: const Center(
+          child: Text(
+            'No Post Found!',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+        ),
+      );
+    }
+
     return GridView.builder(
       padding: const EdgeInsets.only(top: 8),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -101,15 +118,32 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
       itemCount: postData.length,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (_, index) {
-        final imageUrl =
-            'http://192.168.1.3:8080/${postData[index]['post_url']}';
+        final imageUrl = '$imageBaseUrl${postData[index]['post_url']}';
 
         return AspectRatio(
           aspectRatio: 1,
-          child: imageUrl != null
-              ? Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
+          child: imageUrl.isNotEmpty
+              ? GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PostCardPreview(
+                                  postUuid: postData[index]['post_uuid'],
+                                )));
+                  },
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Center(
+                          child: Icon(Icons.error, color: Colors.red),
+                        ),
+                      );
+                    },
+                  ),
                 )
               : Shimmer(
                   duration: const Duration(seconds: 2),

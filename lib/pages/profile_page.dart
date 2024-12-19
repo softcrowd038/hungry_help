@@ -1,21 +1,21 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:quick_social/common/common.dart';
-import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/models.dart';
-import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/models/user_model.dart';
+import 'package:quick_social/pages/update_profile.dart';
+import 'package:quick_social/provider/user_provider.dart';
+import 'package:quick_social/services/followers_service.dart';
 import 'package:quick_social/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({
     super.key,
     required this.user,
     this.isNavigatorPushed = false,
-  })  : story = UserStory.dummyUserStories.firstWhere((e) => e.owner == user),
-        posts = Post.dummyPosts.where((e) => e.owner == user).toList();
+  }) : story = UserStory.dummyUserStories.firstWhere((e) => e.owner == user);
 
   static MaterialPageRoute route(User user) {
     return MaterialPageRoute(
@@ -24,10 +24,8 @@ class ProfilePage extends StatefulWidget {
   }
 
   final bool isNavigatorPushed;
-
   final UserStory story;
   final User user;
-  final List<Post> posts;
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -35,6 +33,11 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> profileData = {};
+  int? followers;
+  int? following;
+  FollowersService followersService = FollowersService();
+  UserAccount? profile;
+  bool isLoading = true; // Track loading state
 
   @override
   void initState() {
@@ -43,51 +46,75 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void initializeData() async {
-    await getUsers();
-  }
-
-  Future<void> getUsers() async {
-    final sharedPreferences = await SharedPreferences.getInstance();
-    final authToken = sharedPreferences.getString('auth_token');
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     final uuid = sharedPreferences.getString('user_uuid');
 
-    final url = Uri.parse('$baseUrl/profile/$uuid');
-
-    if (authToken == null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+    if (uuid == null) {
+      print('User UUID is missing');
       return;
     }
 
-    try {
-      final response =
-          await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final profile = jsonDecode(response.body)['userProfile'];
-        if (profile != null) {
-          setState(() {
-            profileData = profile;
-          });
-        }
-      } else {
-        _handleError(response);
-      }
+    try {
+      await userProvider
+          .fetchUserProfile(uuid); // Ensure we await data fetching
+      final fetchedProfile = userProvider.getUser(uuid);
+
+      if (!mounted) return;
+
+      setState(() {
+        profile = fetchedProfile;
+        isLoading = false;
+      });
     } catch (e) {
-      print('Error fetching user data: $e');
+      print('Error fetching profile: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
+    await getStats();
+    await getFollowingStats();
+  }
+
+  Future<void> getStats() async {
+    try {
+      final stats = await followersService.getFollowersCount();
+
+      if (!mounted) return;
+
+      setState(() {
+        followers = stats['total_followers'];
+      });
+    } catch (e) {
+      print('Error fetching followers stats: $e');
+      if (mounted) {
+        setState(() {
+          followers = 0;
+        });
+      }
     }
   }
 
-  void _handleError(http.Response response) {
-    if (response.statusCode == 500) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
-    } else {
-      print('Error: ${response.body}');
+  Future<void> getFollowingStats() async {
+    try {
+      final stats = await followersService.getFollowingCount();
+
+      if (!mounted) return;
+
+      setState(() {
+        following = stats['total_following'];
+      });
+    } catch (e) {
+      print('Error fetching following stats: $e');
+      if (mounted) {
+        setState(() {
+          following = 0;
+        });
+      }
     }
   }
 
@@ -103,7 +130,8 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             _bannerAndProfilePicture(context),
             _userBio(context),
-            UserPostsTabView(uuid: profileData['uuid'] ?? ''),
+            if (profile != null)
+              UserPostsTabView(uuid: profileData['uuid'] ?? ''),
           ],
         ),
       ),
@@ -136,7 +164,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       )
                     : const SizedBox(),
                 IconButton.filledTonal(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileUpdatePage()));
+                  },
                   style: IconButton.styleFrom(
                     backgroundColor: theme.colorScheme.primary.withAlpha(75),
                   ),
@@ -156,7 +189,16 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _bannerAndProfilePicture(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final imageUrl = profileData['imageurl'];
+
+    if (isLoading) {
+      return const Center(
+          child:
+              CircularProgressIndicator()); // Show a loading indicator while fetching data
+    }
+
+    if (profile == null) {
+      return const Center(child: Text('Profile not available'));
+    }
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -178,12 +220,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        widget.user.followersCount.toString(),
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      followers != null
+                          ? Text(
+                              '$followers',
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : Shimmer(
+                              child: Container(
+                                width: 30,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
                       const Text('Followers'),
                     ],
                   ),
@@ -191,12 +241,20 @@ class _ProfilePageState extends State<ProfilePage> {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        widget.user.followingCount.toString(),
-                        style: textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      following != null
+                          ? Text(
+                              '$following',
+                              style: textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : Shimmer(
+                              child: Container(
+                                width: 30,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
                       const Text('Following'),
                     ],
                   ),
@@ -218,8 +276,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 shape: BoxShape.circle,
               ),
               child: CircleAvatar(
-                backgroundImage: imageUrl != null
-                    ? NetworkImage('http://192.168.1.3:8080/$imageUrl')
+                backgroundImage: profile!.userProfile.imageurl != null
+                    ? NetworkImage(
+                        'http://192.168.1.2:8080/${profile!.userProfile.imageurl}')
                     : const AssetImage('assets/placeholder_avatar.png'),
               ),
             ),
@@ -231,6 +290,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _userBio(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
+    if (profile == null) {
+      return const Center(child: Text('User bio not available'));
+    }
+
+    final userProfile = profile!.userProfile;
+
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.height * 0.016,
@@ -239,47 +305,17 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '${profileData['firstname'] ?? ''} ${profileData['lastname'] ?? ''}',
+            '${userProfile.firstname ?? 'First Name'} ${userProfile.lastname ?? 'Last Name'}',
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text('@${profileData['username'] ?? ''}',
-              style: textTheme.bodyMedium),
+          Text(
+            '@${userProfile.username ?? 'Username'}',
+            style: textTheme.bodyMedium,
+          ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.004,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _profileButtons(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          vertical: MediaQuery.of(context).size.height * 0.024),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          FilledButton(
-            onPressed: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.height * 0.024,
-                vertical: MediaQuery.of(context).size.height * 0.010,
-              ),
-              child: const Text('Follow'),
-            ),
-          ),
-          OutlinedButton(
-            onPressed: () {},
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.height * 0.024,
-                vertical: MediaQuery.of(context).size.height * 0.010,
-              ),
-              child: const Text('Message'),
-            ),
           ),
         ],
       ),

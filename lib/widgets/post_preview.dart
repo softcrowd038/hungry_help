@@ -3,68 +3,69 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/data/app_data.dart';
-import 'package:quick_social/provider/follow_status.dart';
-import 'package:quick_social/provider/like_status_provider.dart';
+import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/services/add_post_service.dart';
-import 'package:quick_social/widgets/comments_bottom_sheet.dart';
+import 'package:quick_social/widgets/comment_post_preview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
-class PostCard extends StatefulWidget {
-  final String uuid;
+class PostCardPreview extends StatefulWidget {
   final String postUuid;
-  final int initialCount;
-  const PostCard(
-      {super.key,
-      required this.uuid,
-      required this.postUuid,
-      required this.initialCount});
+  const PostCardPreview({
+    super.key,
+    required this.postUuid,
+  });
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  State<PostCardPreview> createState() => _PostCardPreviewState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardPreviewState extends State<PostCardPreview> {
   List<dynamic> postData = [];
   List<String> uuids = [];
-  bool isLoading = true;
-  String? status;
-
-  late FollowStatusProvider followStatusProvider;
+  bool isLoading = false;
+  bool isDeleteVisible = false;
+  UserAccount? profile;
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
-    setState(() {
-      isLoading = false;
-    });
+    initializeData();
   }
 
-  Future<void> _initializeData() async {
-    postService.postFollowStatus(context, widget.uuid);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      followStatusProvider =
-          Provider.of<FollowStatusProvider>(context, listen: false);
-      followStatusProvider.getFollowerInitialCount(context, widget.uuid);
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.fetchUserProfile(widget.uuid);
-      final likeStatusProvider =
-          Provider.of<LikeStatusProvider>(context, listen: false);
-      likeStatusProvider.fetchLikeStatus(widget.postUuid);
-      likeStatusProvider.getTotalLikes(widget.postUuid);
-    });
+  void initializeData() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    final uuid = sharedPreferences.getString('user_uuid');
 
-    postService.postLikeStatus(context, widget.postUuid);
+    if (uuid == null) {
+      print('User UUID is missing');
+      return;
+    }
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    try {
+      userProvider.fetchUserProfile(uuid);
+      final fetchedProfile = userProvider.getUser(uuid);
+
+      if (mounted) {
+        setState(() {
+          profile = fetchedProfile;
+        });
+      }
+    } catch (e) {
+      print('Error fetching profile: $e');
+    }
+
     await _fetchPostData();
   }
-
-  final postService = PostService();
 
   Future<void> _fetchPostData() async {
     try {
       final postService = PostService();
       postData = await postService.getPost(widget.postUuid);
+      print(postData);
     } catch (e) {
       print('Error fetching post data: $e');
     }
@@ -105,29 +106,40 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : _mobileCard(context);
-      },
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : _mobileCard(context);
+              },
+            ),
+            CommentsPostPreview(postUuid: widget.postUuid)
+          ],
+        ),
+      ),
     );
   }
 
   Widget _mobileCard(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
     if (userProvider.errorMessage != null) {
       return Center(child: Text('Error: ${userProvider.errorMessage}'));
     }
 
-    final profile = userProvider.getUser(widget.uuid);
     if (profile == null) {
-      return const Center(child: Text(''));
+      return const Center(
+        child: Text('Loading profile...'),
+      );
     }
+
+    final userProfile = profile!.userProfile;
 
     return ListView.builder(
       shrinkWrap: true,
@@ -141,52 +153,88 @@ class _PostCardState extends State<PostCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ListTile(
-              leading: CircleAvatar(
-                // ignore: unnecessary_null_comparison
-                backgroundImage: profile.userProfile.imageurl != null
-                    ? NetworkImage(
-                        '$imageBaseUrl${profile.userProfile.imageurl}',
-                      )
-                    : null,
-                child: profile.userProfile.imageurl == null
-                    ? const Icon(Icons.person)
-                    : null,
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile.userProfile.username ?? 'Loading...',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    getTimeDifference(post['post_date'], post['post_time']),
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.014),
-                  ),
-                ],
-              ),
-              trailing: Consumer<FollowStatusProvider>(
-                  builder: (context, followStatusProvider, child) {
-                final isFollowing =
-                    followStatusProvider.isFollowing(widget.uuid);
-                return TextButton(
-                  onPressed: () {
-                    followStatusProvider.toggleFollowStatus(
-                        context, widget.uuid);
-                  },
-                  child: Text(
-                    followStatusProvider.isFollowing !=  null
-                        ? (isFollowing ? 'Unfollow' : 'Follow')
-                        : 'Loading...',
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 140, 255),
-                      fontWeight: FontWeight.bold,
+                leading: CircleAvatar(
+                  backgroundImage: profile!.userProfile.imageurl != null
+                      ? NetworkImage('$imageBaseUrl${userProfile.imageurl}')
+                      : const AssetImage('assets/placeholder_avatar.png'),
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    isLoading
+                        ? Shimmer(
+                            duration: const Duration(seconds: 2),
+                            child: Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Text(
+                            userProfile.username ?? 'User Name',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                    isLoading
+                        ? Shimmer(
+                            duration: const Duration(seconds: 2),
+                            child: Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                              width: MediaQuery.of(context).size.width * 0.10,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Text(
+                            getTimeDifference(
+                                post['post_date'], post['post_time']),
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height * 0.014),
+                          ),
+                  ],
+                ),
+                trailing: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isDeleteVisible = !isDeleteVisible;
+                      });
+                    },
+                    child: const Icon(Icons.more_vert))),
+            // Delete Button Visibility
+            if (isDeleteVisible)
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.04,
+                  vertical: MediaQuery.of(context).size.height * 0.01,
+                ),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  width: double.infinity, // Full width
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      MediaQuery.of(context).size.height * 0.01,
                     ),
                   ),
-                );
-              }),
-            ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Delete',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            // Post Content
             if (!isLoading) ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +301,7 @@ class _PostCardState extends State<PostCard> {
                                 horizontal:
                                     MediaQuery.of(context).size.height * 0.015),
                             child: Image.network(
-                              'http://192.168.1.2:8080/${post['post_url']}',
+                              '$imageBaseUrl${post['post_url']}',
                               fit: BoxFit.cover,
                               loadingBuilder:
                                   (context, child, loadingProgress) {
@@ -278,58 +326,13 @@ class _PostCardState extends State<PostCard> {
                             ),
                           ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Consumer<LikeStatusProvider>(
-                          builder: (context, likeStatusProvider, child) {
-                        final isLiked =
-                            likeStatusProvider.isLiked(widget.postUuid);
-                        final count =
-                            likeStatusProvider.totalLikes(widget.postUuid);
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                isLiked
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: isLiked
-                                    ? theme.colorScheme.primary
-                                    : Colors.black,
-                              ),
-                              onPressed: () {
-                                likeStatusProvider.toggleLikeStatus(
-                                    context, widget.postUuid);
-                              },
-                            ),
-                            Text(
-                              '$count',
-                              style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height *
-                                      0.014,
-                                  color: Colors.grey),
-                            ),
-                          ],
-                        );
-                      }),
-                      IconButton(
-                        icon: const Icon(Icons.comment),
-                        onPressed: () {
-                          showCommentsBottomSheet(context);
-                        },
-                      ),
-                    ],
-                  ),
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: MediaQuery.of(context).size.height * 0.016,
                     ),
                     child: Divider(
                         height: MediaQuery.of(context).size.height * 0.004),
-                  )
+                  ),
                 ],
               ),
             ],
@@ -337,20 +340,5 @@ class _PostCardState extends State<PostCard> {
         );
       },
     );
-  }
-
-  Future<void> showCommentsBottomSheet(BuildContext context) async {
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      return await showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        enableDrag: true,
-        isScrollControlled: true,
-        builder: (_) => CommentsBottomSheet(postUuid: widget.postUuid),
-      );
-    }
   }
 }

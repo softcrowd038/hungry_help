@@ -5,23 +5,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
-import 'package:quick_social/widgets/comment_tile.dart';
+import 'package:quick_social/widgets/comment_tile_preview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class CommentsBottomSheet extends StatefulWidget {
+class CommentsPostPreview extends StatefulWidget {
   final String? postUuid;
-  const CommentsBottomSheet({super.key, required this.postUuid});
+  const CommentsPostPreview({super.key, required this.postUuid});
 
   @override
-  State<CommentsBottomSheet> createState() => _CommentsBottomSheetState();
+  State<CommentsPostPreview> createState() => _CommentsPostPreviewState();
 }
 
-class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
+class _CommentsPostPreviewState extends State<CommentsPostPreview> {
   List<String> _comments = [];
   List<String> _uuid = [];
-
-  final TextEditingController _commentText = TextEditingController();
 
   @override
   void initState() {
@@ -31,57 +29,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
   void initalizeData() async {
     await getCommentsByPostUUID();
-  }
-
-  Future<void> postComment(
-    BuildContext context,
-  ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-    final uuid = prefs.getString('user_uuid');
-
-    if (token == null || uuid == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('User authentication token or UUID is missing.')),
-      );
-      return;
-    }
-
-    final Uri url = Uri.parse('$baseUrl/createcomment');
-
-    final Map<String, dynamic> body = {
-      'post_uuid': widget.postUuid,
-      'user_uuid': uuid,
-      'comment': _commentText.text,
-    };
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(body),
-      );
-
-      if (response.statusCode == 201) {
-        final jsonResponse = json.decode(response.body);
-        print(jsonResponse['message'] ?? 'Like status posted successfully.');
-        Navigator.pop(context);
-      } else {
-        final jsonResponse = json.decode(response.body);
-        final message = jsonResponse['message'] ?? 'Failed to post like status';
-        print('Error posting like status: ${response.statusCode} - $message');
-      }
-    } catch (e) {
-      print('Error posting like status: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('An error occurred while posting like status.')),
-      );
-    }
   }
 
   Future<void> getCommentsByPostUUID() async {
@@ -138,7 +85,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
             margin: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom),
             padding: const EdgeInsets.only(bottom: 64),
-            height: MediaQuery.of(context).size.height,
+            height: MediaQuery.of(context).size.height * 0.70,
             decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius: const BorderRadius.vertical(
@@ -154,12 +101,12 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                       return index == 0
                           ? Padding(
                               padding: const EdgeInsets.only(top: 16),
-                              child: CommentTile(
+                              child: CommentTilePreview(
                                 comment: _comments[index],
                                 uuid: _uuid[index],
                               ),
                             )
-                          : CommentTile(
+                          : CommentTilePreview(
                               comment: _comments[index],
                               uuid: _uuid[index],
                             );
@@ -170,10 +117,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
         Align(
           alignment: Alignment.topCenter,
           child: _header(theme),
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: _commentTextField(theme),
         ),
       ],
     );
@@ -203,50 +146,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
               style: theme.textTheme.titleMedium
                   ?.copyWith(fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _commentTextField(ThemeData theme) {
-
-    return Container(
-      color: theme.colorScheme.secondaryContainer,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Row(
-        children: [
-          Flexible(
-            child: TextField(
-              controller: _commentText,
-              autofocus: true,
-              onSubmitted: (value) {
-                postComment(
-                  context,
-                );
-              },
-              decoration: InputDecoration(
-                hintText: 'Write your comment',
-                filled: true,
-                isDense: true,
-                fillColor: theme.colorScheme.surface,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            onPressed: () {
-              if (_commentText.text.isEmpty) return;
-              postComment(
-                context,
-              );
-            },
-            icon: const Icon(Icons.send),
           ),
         ],
       ),

@@ -5,9 +5,11 @@ import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/pages/notifications_page.dart';
+import 'package:quick_social/services/add_post_service.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:http/http.dart' as http;
-import 'package:quick_social/widgets/widgets.dart';
+import 'package:quick_social/widgets/layout/responsive_padding.dart';
+import 'package:quick_social/widgets/post_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedPage extends StatefulWidget {
@@ -21,10 +23,12 @@ class _FeedPageState extends State<FeedPage> {
   Map<String, dynamic> data = {};
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  PostService postService = PostService();
 
   @override
   void initState() {
     super.initState();
+    postService.createPost;
     getPosts();
   }
 
@@ -42,16 +46,11 @@ class _FeedPageState extends State<FeedPage> {
 
   void _handleError(http.Response response) {
     if (response.statusCode == 500) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      throw Exception('error');
     } else {
       print('Error: ${response.body}');
     }
   }
-
-  
 
   Future<void> getPosts() async {
     final url = Uri.parse('$baseUrl/getposts');
@@ -71,16 +70,25 @@ class _FeedPageState extends State<FeedPage> {
           await http.get(url, headers: {'Authorization': 'Bearer $authToken'});
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
         setState(() {
-          data = jsonDecode(response.body);
+          data = responseData;
+          _isLoading = false;
+        });
+      } else if (response.statusCode == 404) {
+        // Handle case when posts table doesn't exist
+        setState(() {
+          data = {'data': []}; // Empty posts list
           _isLoading = false;
         });
       } else {
-        _handleError(response);
+        throw Exception('Error: ${response.body}');
       }
     } catch (e) {
       print('Error fetching posts: $e');
       setState(() {
+        data = {'data': []}; // Default to empty data on failure
         _isLoading = false;
       });
     }
@@ -151,13 +159,16 @@ class _FeedPageState extends State<FeedPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ResponsivePadding(
-              child: ListView(
-                children: [
-                  ListView.builder(
+          : data['data'] == null || data['data'].isEmpty
+              ? Center(
+                  child: Text(
+                    'No one has posted yet.',
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                )
+              : ResponsivePadding(
+                  child: ListView.builder(
                     itemCount: data['data'] != null ? data['data'].length : 0,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
                     itemBuilder: (_, index) {
                       var post = data['data'][index];
                       return PostCard(
@@ -167,9 +178,7 @@ class _FeedPageState extends State<FeedPage> {
                       );
                     },
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

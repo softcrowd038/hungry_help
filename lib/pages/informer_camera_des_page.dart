@@ -51,9 +51,19 @@ class _InformerCameraDescriptionPageState
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
           child: Column(
             children: [
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  hintText: 'Add a description',
+                ),
+              ),
+              const SizedBox(height: 10),
               if (informerProfileProvider.imageurl != null)
                 FutureBuilder<Size>(
                   future: _getImageSize(
@@ -90,16 +100,6 @@ class _InformerCameraDescriptionPageState
                 )
               else
                 const Text('No image selected.'),
-              const SizedBox(height: 10),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: 'Add a description',
-                ),
-              ),
             ],
           ),
         ),

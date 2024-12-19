@@ -124,7 +124,7 @@ class _ConfirmOrder extends State<ConfirmOrder> {
                             ),
                           ),
                           Image.network(
-                            'http://192.168.1.3:8080/${closestInformerData['imageurl']}',
+                            'http://192.168.1.2:8080/${closestInformerData['imageurl']}',
                             scale: 1.0,
                             fit: BoxFit.cover,
                             height: MediaQuery.of(context).size.height * 0.50,

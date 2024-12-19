@@ -49,53 +49,51 @@ class _ReviewPageState extends State<ReviewPage> {
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              FutureBuilder<Size>(
-                future:
-                    _getImageSize(File(donorProfileProvider.imageurl!.path)),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final size = snapshot.data!;
-                    final aspectRatio = size.width / size.height;
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        double screenHeight =
-                            MediaQuery.of(context).size.height;
-
-                        return SizedBox(
-                          height: aspectRatio == 0.5625
-                              ? screenHeight * 0.75
-                              : null,
-                          child: AspectRatio(
-                            aspectRatio: aspectRatio,
-                            child: Image.file(
-                              File(donorProfileProvider.imageurl!.path),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
-              const SizedBox(height: 10),
-              TextField(
+        child: Column(
+          children: [
+            Padding(
+              padding:
+                  EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
+              child: TextField(
                 controller: _descriptionController,
                 decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
+                  border: UnderlineInputBorder(),
+                  enabledBorder: UnderlineInputBorder(),
+                  focusedBorder: UnderlineInputBorder(),
                   hintText: 'Add a description',
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            FutureBuilder<Size>(
+              future: _getImageSize(File(donorProfileProvider.imageurl!.path)),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  final size = snapshot.data!;
+                  final aspectRatio = size.width / size.height;
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      double screenHeight = MediaQuery.of(context).size.height;
+
+                      return SizedBox(
+                        height:
+                            aspectRatio == 0.5625 ? screenHeight * 0.75 : null,
+                        child: AspectRatio(
+                          aspectRatio: aspectRatio,
+                          child: Image.file(
+                            File(donorProfileProvider.imageurl!.path),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+          ],
         ),
       ),
     );

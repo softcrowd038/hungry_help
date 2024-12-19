@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quick_social/pages/feed_page_preview.dart';
 import 'package:quick_social/pages/home_page.dart';
-import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/widgets/app_logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +25,7 @@ class _SplashPageState extends State<SplashPage> {
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(builder: (context) => const FeedPagePreview()),
         );
       }
     }

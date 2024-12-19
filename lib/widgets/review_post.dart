@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/pages/post_preview.dart';
 import 'package:quick_social/provider/post_provider.dart';
-import 'package:video_player/video_player.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class ReviewPostPage extends StatefulWidget {

@@ -23,7 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
-  final String _registerUrl = 'http://192.168.1.3:8080/api/v1/register';
+  final String _registerUrl = 'http://192.168.1.2:8080/api/v1/register';
   Future<void> _registerUser() async {
     if (!_globalKey.currentState!.validate()) {
       return;

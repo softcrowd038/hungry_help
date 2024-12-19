@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
+// ignore_for_file: use_build_context_synchronously, avoid_print, unnecessary_null_comparison
 
 import 'dart:async';
 import 'dart:convert';
@@ -102,7 +102,6 @@ class _PostPreview extends State<PostPreview> {
   }
 
   Future<void> createPost() async {
-    bool _isLoading = true;
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -120,15 +119,15 @@ class _PostPreview extends State<PostPreview> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.3:8080/api/v1/create');
+      final url = Uri.parse('http://192.168.1.2:8080/api/v1/create');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid;
-      request.fields['title'] = postProvider.title;
-      request.fields['description'] = postProvider.description;
+      request.fields['title'] = postProvider.title!;
+      request.fields['description'] = postProvider.description!;
       request.fields['post_date'] = _getCurrentDate();
       request.fields['post_time'] = _getCurrentTime();
-      request.fields['type'] = postProvider.type;
+      request.fields['type'] = postProvider.type!;
       request.fields['likes'] = '0';
 
       if (postProvider.postUrl!.path != null) {
@@ -171,9 +170,7 @@ class _PostPreview extends State<PostPreview> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
-    } finally {
-      _isLoading = false;
-    }
+    } finally {}
   }
 
   String _getCurrentDate() {
@@ -243,7 +240,7 @@ class _PostPreview extends State<PostPreview> {
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.15),
                               child: Image.network(
-                                'http://192.168.1.3:8080/${userProfile['imageurl']}',
+                                'http://192.168.1.2:8080/${userProfile['imageurl']}',
                                 height:
                                     MediaQuery.of(context).size.height * 0.07,
                                 width:
@@ -282,7 +279,7 @@ class _PostPreview extends State<PostPreview> {
                             left: MediaQuery.of(context).size.height * 0.015,
                             top: MediaQuery.of(context).size.height * 0.015),
                         child: Text(
-                          postProvider.title,
+                          postProvider.title!,
                           style: TextStyle(
                               fontSize:
                                   MediaQuery.of(context).size.height * 0.022,
@@ -294,7 +291,7 @@ class _PostPreview extends State<PostPreview> {
                           left: MediaQuery.of(context).size.height * 0.050,
                         ),
                         child: Text(
-                          postProvider.description,
+                          postProvider.description!,
                           style: TextStyle(
                               fontSize:
                                   MediaQuery.of(context).size.height * 0.016,

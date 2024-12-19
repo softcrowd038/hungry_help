@@ -64,10 +64,7 @@ class _CommentTileState extends State<CommentTile> {
 
   void _handleError(http.Response response) {
     if (response.statusCode == 500) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      print(response.body);
     } else {
       print('Error: ${response.body}');
     }
@@ -89,7 +86,7 @@ class _CommentTileState extends State<CommentTile> {
         children: [
           CircleAvatar(
             backgroundImage: imageUrl != null
-                ? NetworkImage('http://192.168.1.3:8080/$imageUrl')
+                ? NetworkImage('http://192.168.1.2:8080/$imageUrl')
                 : const AssetImage('assets/placeholder_avatar.png'),
           ),
           const SizedBox(width: 8),

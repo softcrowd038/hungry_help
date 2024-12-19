@@ -336,7 +336,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                     child:
                                         closestInformerData['imageurl'] != null
                                             ? Image.network(
-                                                'http://192.168.1.3:8080/${closestInformerData['imageurl']}',
+                                                'http://192.168.1.2:8080/${closestInformerData['imageurl']}',
                                                 scale: 1.0,
                                                 fit: BoxFit.cover,
                                               )

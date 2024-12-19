@@ -1,11 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/profile_image.dart';
 import 'package:quick_social/pages/register_page.dart';
+import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +25,9 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final String _loginUrl = 'http://192.168.1.3:8080/api/v1/login';
+  final String _loginUrl = 'http://192.168.1.2:8080/api/v1/login';
+  UserAccount? profile;
+  bool isLoading = true;
 
   Future<void> _loginUser() async {
     if (!_globalKey.currentState!.validate()) {
@@ -57,9 +62,13 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('user_name', username);
         await prefs.setString('user_email', email);
         await prefs.setString('user_uuid', uuid);
-        final profileStatus = prefs.getString('status');
 
-        if (profileStatus == 'active') {
+        await initializeData(uuid); // Await initialization to complete
+
+        // Navigate based on profile
+        if (profile != null &&
+            profile!.userProfile.firstname != null &&
+            profile!.userProfile.lastname != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
@@ -70,6 +79,11 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => const ProfileImagePage()),
           );
         }
+      }
+      if (response.statusCode == 404) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User not Found')),
+        );
       } else {
         final message = jsonDecode(response.body)['message'] ?? 'Login failed';
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +99,28 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> initializeData(String uuid) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    try {
+      await userProvider.fetchUserProfile(uuid);
+      final fetchedProfile = userProvider.getUser(uuid);
+
+      if (!mounted) return;
+      setState(() {
+        profile = fetchedProfile;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching profile: $e');
+      if (!mounted) return;
+      setState(() {
+        profile = null;
+        isLoading = false;
+      });
+    }
   }
 
   @override

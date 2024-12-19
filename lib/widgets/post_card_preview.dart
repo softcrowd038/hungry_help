@@ -1,30 +1,30 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/provider/follow_status.dart';
-import 'package:quick_social/provider/like_status_provider.dart';
 import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/services/add_post_service.dart';
-import 'package:quick_social/widgets/comments_bottom_sheet.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 
-class PostCard extends StatefulWidget {
+class PostCardLoginPreview extends StatefulWidget {
   final String uuid;
   final String postUuid;
   final int initialCount;
-  const PostCard(
+  const PostCardLoginPreview(
       {super.key,
       required this.uuid,
       required this.postUuid,
       required this.initialCount});
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  State<PostCardLoginPreview> createState() => _PostCardLoginPreviewState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
   List<dynamic> postData = [];
   List<String> uuids = [];
   bool isLoading = true;
@@ -42,20 +42,10 @@ class _PostCardState extends State<PostCard> {
   }
 
   Future<void> _initializeData() async {
-    postService.postFollowStatus(context, widget.uuid);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      followStatusProvider =
-          Provider.of<FollowStatusProvider>(context, listen: false);
-      followStatusProvider.getFollowerInitialCount(context, widget.uuid);
       final userProvider = Provider.of<UserProvider>(context, listen: false);
       userProvider.fetchUserProfile(widget.uuid);
-      final likeStatusProvider =
-          Provider.of<LikeStatusProvider>(context, listen: false);
-      likeStatusProvider.fetchLikeStatus(widget.postUuid);
-      likeStatusProvider.getTotalLikes(widget.postUuid);
     });
-
-    postService.postLikeStatus(context, widget.postUuid);
     await _fetchPostData();
   }
 
@@ -103,6 +93,59 @@ class _PostCardState extends State<PostCard> {
     super.dispose();
   }
 
+  void _showLoginDialog(BuildContext context, String title, String message) {
+    showDialog(
+        context: context,
+        builder: (_) => GiffyDialog(
+              giffy: Image.network(
+                  'https://cdn.dribbble.com/users/1939393/screenshots/6392286/dribbble-404-error.gif'),
+              title: Text(title,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.height * 0.022,
+                      fontWeight: FontWeight.w600)),
+              entryAnimation: EntryAnimation.bottom,
+              content: Text(
+                message,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height * 0.018),
+              ),
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Not Now',
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.016),
+                        )),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()));
+                        },
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.016),
+                        )),
+                  ],
+                )
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -117,7 +160,6 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _mobileCard(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
     if (userProvider.errorMessage != null) {
@@ -141,52 +183,37 @@ class _PostCardState extends State<PostCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ListTile(
-              leading: CircleAvatar(
-                // ignore: unnecessary_null_comparison
-                backgroundImage: profile.userProfile.imageurl != null
-                    ? NetworkImage(
-                        '$imageBaseUrl${profile.userProfile.imageurl}',
-                      )
-                    : null,
-                child: profile.userProfile.imageurl == null
-                    ? const Icon(Icons.person)
-                    : null,
-              ),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile.userProfile.username ?? 'Loading...',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    getTimeDifference(post['post_date'], post['post_time']),
-                    style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height * 0.014),
-                  ),
-                ],
-              ),
-              trailing: Consumer<FollowStatusProvider>(
-                  builder: (context, followStatusProvider, child) {
-                final isFollowing =
-                    followStatusProvider.isFollowing(widget.uuid);
-                return TextButton(
-                  onPressed: () {
-                    followStatusProvider.toggleFollowStatus(
-                        context, widget.uuid);
-                  },
-                  child: Text(
-                    followStatusProvider.isFollowing !=  null
-                        ? (isFollowing ? 'Unfollow' : 'Follow')
-                        : 'Loading...',
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 0, 140, 255),
-                      fontWeight: FontWeight.bold,
+                leading: CircleAvatar(
+                  // ignore: unnecessary_null_comparison
+                  backgroundImage: profile.userProfile.imageurl != null
+                      ? NetworkImage(
+                          '$imageBaseUrl${profile.userProfile.imageurl}',
+                        )
+                      : null,
+                  child: profile.userProfile.imageurl == null
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
+                title: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.userProfile.username ?? 'Loading...',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                );
-              }),
-            ),
+                    Text(
+                      getTimeDifference(post['post_date'], post['post_time']),
+                      style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.height * 0.014),
+                    ),
+                  ],
+                ),
+                trailing: GestureDetector(
+                    onTap: () {
+                      _showLoginDialog(context, 'Want to Access More Features',
+                          'Login to Unlock this feature');
+                    },
+                    child: const Icon(Icons.more_vert))),
             if (!isLoading) ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,44 +308,26 @@ class _PostCardState extends State<PostCard> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Consumer<LikeStatusProvider>(
-                          builder: (context, likeStatusProvider, child) {
-                        final isLiked =
-                            likeStatusProvider.isLiked(widget.postUuid);
-                        final count =
-                            likeStatusProvider.totalLikes(widget.postUuid);
-
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                isLiked
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: isLiked
-                                    ? theme.colorScheme.primary
-                                    : Colors.black,
-                              ),
-                              onPressed: () {
-                                likeStatusProvider.toggleLikeStatus(
-                                    context, widget.postUuid);
-                              },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.favorite_border,
+                              color: Colors.black,
                             ),
-                            Text(
-                              '$count',
-                              style: TextStyle(
-                                  fontSize: MediaQuery.of(context).size.height *
-                                      0.014,
-                                  color: Colors.grey),
-                            ),
-                          ],
-                        );
-                      }),
+                            onPressed: () {
+                              _showLoginDialog(context, 'Want to Like',
+                                  'Login to Unlock this feature');
+                            },
+                          ),
+                        ],
+                      ),
                       IconButton(
                         icon: const Icon(Icons.comment),
                         onPressed: () {
-                          showCommentsBottomSheet(context);
+                          _showLoginDialog(context, 'Want to Comment',
+                              'Login to Unlock this feature');
                         },
                       ),
                     ],
@@ -337,20 +346,5 @@ class _PostCardState extends State<PostCard> {
         );
       },
     );
-  }
-
-  Future<void> showCommentsBottomSheet(BuildContext context) async {
-    if (ModalRoute.of(context)?.isCurrent == true) {
-      return await showModalBottomSheet(
-        context: context,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        enableDrag: true,
-        isScrollControlled: true,
-        builder: (_) => CommentsBottomSheet(postUuid: widget.postUuid),
-      );
-    }
   }
 }
