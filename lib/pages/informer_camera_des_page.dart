@@ -17,6 +17,7 @@ class InformerCameraDescriptionPage extends StatefulWidget {
 class _InformerCameraDescriptionPageState
     extends State<InformerCameraDescriptionPage> {
   final TextEditingController _descriptionController = TextEditingController();
+  String? _errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +33,25 @@ class _InformerCameraDescriptionPageState
             ),
             TextButton(
               onPressed: () {
+                // Validation checks
+                if (_descriptionController.text.isEmpty) {
+                  setState(() {
+                    _errorMessage = "Description cannot be empty!";
+                  });
+                  return;
+                } else if (informerProfileProvider.imageurl == null) {
+                  setState(() {
+                    _errorMessage = "Please select or capture an image.";
+                  });
+                  return;
+                }
+
+                // Clear error message if validation is successful
+                setState(() {
+                  _errorMessage = null;
+                });
+
+                // Proceed to the next screen if validation passes
                 informerProfileProvider
                     .setDescription(_descriptionController.text);
                 Navigator.of(context).push(MaterialPageRoute(
@@ -54,16 +74,19 @@ class _InformerCameraDescriptionPageState
           padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
           child: Column(
             children: [
+              // Description TextField
               TextField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: 'Add a description',
+                  errorText: _errorMessage,
                 ),
               ),
               const SizedBox(height: 10),
+              // Display image or error
               if (informerProfileProvider.imageurl != null)
                 FutureBuilder<Size>(
                   future: _getImageSize(
@@ -107,6 +130,7 @@ class _InformerCameraDescriptionPageState
     );
   }
 
+  // Function to get image size
   Future<Size> _getImageSize(File imageFile) async {
     final completer = Completer<Size>();
     final image = Image.file(imageFile);

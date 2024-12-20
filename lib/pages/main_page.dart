@@ -28,8 +28,8 @@ class _MainPage extends State<MainPage> {
   void initState() {
     super.initState();
     fetchInformerData();
-    fetchData();
     postData();
+    fetchData();
   }
 
   Future<void> postData() async {

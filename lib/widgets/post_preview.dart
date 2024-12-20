@@ -4,8 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/user_model.dart';
+import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/services/add_post_service.dart';
+import 'package:quick_social/services/post_service.dart';
 import 'package:quick_social/widgets/comment_post_preview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
@@ -72,22 +74,36 @@ class _PostCardPreviewState extends State<PostCardPreview> {
   }
 
   String getTimeDifference(String postDate, String postTime) {
-    final DateFormat dateTimeFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final DateFormat timeFormat = DateFormat('HH:mm:ss');
 
-    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-    DateTime postDateParsed = dateFormat.parse(postDate);
+    DateTime postDateParsed =
+        dateFormat.parse('${DateTime.parse(postDate).toLocal()}');
+    DateTime postTimeParsed = timeFormat.parse(postTime);
 
-    String cleanedPostTime = postTime.replaceAll(RegExp(r'[TZ]'), '');
+    DateTime postDateTime = DateTime(
+      postDateParsed.year,
+      postDateParsed.month,
+      postDateParsed.day,
+      postTimeParsed.hour,
+      postTimeParsed.minute,
+      postTimeParsed.second,
+    );
 
-    String combinedDateTime =
-        '${dateFormat.format(postDateParsed)}T$cleanedPostTime';
+    DateTime now = DateTime.now();
+    DateTime currentDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
 
-    DateTime postDateTime = dateTimeFormat.parse(combinedDateTime);
+    print('currentDateTime : $currentDateTime');
 
-    final DateTime now = DateTime.now();
-
-    final Duration difference = now.difference(postDateTime);
-
+    final Duration difference = currentDateTime.difference(postDateTime);
+    print('difference : $difference');
     if (difference.inDays >= 1) {
       return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
     } else if (difference.inHours >= 1) {
@@ -201,36 +217,55 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                       });
                     },
                     child: const Icon(Icons.more_vert))),
-            // Delete Button Visibility
             if (isDeleteVisible)
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.04,
-                  vertical: MediaQuery.of(context).size.height * 0.01,
-                ),
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.07,
-                  width: double.infinity, // Full width
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.error.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(
-                      MediaQuery.of(context).size.height * 0.01,
-                    ),
+              GestureDetector(
+                onTap: () async {
+                  final deleteService = DeletePostService();
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HomePage()));
+
+                  try {
+                    final response = await deleteService.deletePostByPostUUId(
+                        context, widget.postUuid);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Post deleted')),
+                    );
+                  } catch (e) {
+                    print('Error deleting Post: $e');
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.04,
+                    vertical: MediaQuery.of(context).size.height * 0.01,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.delete,
-                        color: Theme.of(context).colorScheme.error,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color:
+                          Theme.of(context).colorScheme.error.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(
+                        MediaQuery.of(context).size.height * 0.01,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Delete',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.error),
-                      ),
-                    ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Delete',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.error),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

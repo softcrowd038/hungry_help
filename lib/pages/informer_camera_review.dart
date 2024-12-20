@@ -13,9 +13,7 @@ import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InformerCameraReviewPage extends StatefulWidget {
-  const InformerCameraReviewPage({
-    super.key,
-  });
+  const InformerCameraReviewPage({super.key});
 
   @override
   State<InformerCameraReviewPage> createState() => _InformerCameraReviewPage();
@@ -270,7 +268,6 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                             child: Container(
                               height: MediaQuery.of(context).size.height * 0.06,
                               decoration: BoxDecoration(
-                                // border: Border.all(),
                                 borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.010,
                                 ),
@@ -283,7 +280,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                                           0.0080,
                                     ),
                                     child: const Text(
-                                      'People Count:',
+                                      'People Count: ',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -325,6 +322,12 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                               : const Icon(Icons.place),
                         ),
                         onTap: _getCurrentLocation,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please fetch or enter a location';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(height: 20),

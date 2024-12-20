@@ -19,6 +19,7 @@ class ReviewPostPage extends StatefulWidget {
 class _ReviewPostPageState extends State<ReviewPostPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -40,10 +41,12 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
             ),
             TextButton(
               onPressed: () {
-                postProvider.setTitle(_titleController.text);
-                postProvider.setDescription(_descriptionController.text);
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const PostPreview()));
+                if (_formKey.currentState!.validate()) {
+                  postProvider.setTitle(_titleController.text);
+                  postProvider.setDescription(_descriptionController.text);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PostPreview()));
+                }
               },
               child: Text(
                 'Next',
@@ -60,29 +63,44 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.015),
-          child: Column(
-            children: [
-              _buildImagePreview(postProvider),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.010),
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: 'Add a Title',
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                _buildImagePreview(postProvider),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.010),
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'Add a Title',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Title is required';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  hintText: 'Add a description',
+                TextFormField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'Add a description',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Description is required';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

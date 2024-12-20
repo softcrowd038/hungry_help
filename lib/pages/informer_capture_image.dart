@@ -20,7 +20,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
   int _selectedCameraIndex = 0;
   bool isVideoSelected = false;
   final ImagePicker _imagePicker = ImagePicker();
-  double _zoomLevel = 1.0; 
+  double _zoomLevel = 1.0;
 
   @override
   void initState() {
@@ -48,7 +48,6 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
       setState(() {
         _capturedFile = image;
       });
-      _navigateToReviewPage(File(_capturedFile!.path));
     } catch (e) {
       print('Error capturing image: $e');
     }
@@ -62,7 +61,6 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
         setState(() {
           _capturedFile = pickedFile;
         });
-        _navigateToReviewPage(File(_capturedFile!.path));
       }
     } catch (e) {
       print('Error picking image from gallery: $e');
@@ -80,6 +78,12 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
         MaterialPageRoute(
           builder: (context) => const InformerCameraDescriptionPage(),
         ),
+      );
+    } else {
+      // Show an error message if no image is captured
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please capture or select an image first.')),
       );
     }
   }
@@ -113,7 +117,15 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
             ),
             TextButton(
                 onPressed: () {
-                  _navigateToReviewPage(File(_capturedFile!.path));
+                  // Ensure an image is captured before proceeding
+                  if (_capturedFile == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('No image selected or captured.')),
+                    );
+                  } else {
+                    _navigateToReviewPage(File(_capturedFile!.path));
+                  }
                 },
                 child: Text(
                   'Next',

@@ -29,18 +29,31 @@ class _ProfileImagePage extends State<ProfileImagePage> {
   }
 
   Future<void> _initializeCamera() async {
-    _cameras = await availableCameras();
-    _cameraController = CameraController(
-      _cameras![_selectedCameraIndex],
-      ResolutionPreset.high,
-    );
+    try {
+      _cameras = await availableCameras();
+      if (_cameras!.isEmpty) {
+        _showSnackBar('No cameras available on this device.');
+        return;
+      }
 
-    await _cameraController!.initialize();
-    if (!mounted) return;
-    setState(() {});
+      _cameraController = CameraController(
+        _cameras![_selectedCameraIndex],
+        ResolutionPreset.high,
+      );
+
+      await _cameraController!.initialize();
+      setState(() {});
+    } catch (e) {
+      _showSnackBar('Failed to initialize camera: $e');
+    }
   }
 
   Future<void> _captureImage() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      _showSnackBar('Camera is not ready. Please try again.');
+      return;
+    }
+
     try {
       final XFile image = await _cameraController!.takePicture();
       setState(() {
@@ -48,7 +61,7 @@ class _ProfileImagePage extends State<ProfileImagePage> {
       });
       _saveImageToProvider(File(_capturedFile!.path));
     } catch (e) {
-      print('Error capturing image: $e');
+      _showSnackBar('Error capturing image: $e');
     }
   }
 
@@ -61,9 +74,11 @@ class _ProfileImagePage extends State<ProfileImagePage> {
           _capturedFile = pickedFile;
         });
         _saveImageToProvider(File(_capturedFile!.path));
+      } else {
+        _showSnackBar('No image selected.');
       }
     } catch (e) {
-      print('Error picking image from gallery: $e');
+      _showSnackBar('Error picking image from gallery: $e');
     }
   }
 
@@ -75,22 +90,36 @@ class _ProfileImagePage extends State<ProfileImagePage> {
   }
 
   void _navigateToReviewPage() {
-    if (_capturedFile != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ProfileDataPage(),
-        ),
-      );
+    if (_capturedFile == null) {
+      _showSnackBar('Please capture or select an image before proceeding.');
+      return;
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfileDataPage(),
+      ),
+    );
   }
 
   void _switchCamera() {
+    if (_cameras == null || _cameras!.isEmpty) {
+      _showSnackBar('No cameras available to switch.');
+      return;
+    }
+
     setState(() {
       _selectedCameraIndex =
           (_selectedCameraIndex + 1) % (_cameras?.length ?? 1);
       _initializeCamera();
     });
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override

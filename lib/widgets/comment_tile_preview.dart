@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/services/post_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CommentTilePreview extends StatefulWidget {
   const CommentTilePreview(
-      {super.key, required this.uuid, required this.comment});
+      {super.key,
+      required this.uuid,
+      required this.comment,
+      required this.commentuuid});
   final String? uuid;
   final String comment;
+  final String commentuuid;
 
   @override
   State<CommentTilePreview> createState() => _CommentTilePreviewState();
@@ -136,32 +141,48 @@ class _CommentTilePreviewState extends State<CommentTilePreview> {
             ],
           ),
           if (isDeleteVisible)
-            Padding(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.height * 0.2),
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.07,
-                width: MediaQuery.of(context).size.height * 0.2,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(
-                    MediaQuery.of(context).size.height * 0.01,
+            GestureDetector(
+              onTap: () async {
+                final deleteService = DeletePostService();
+                Navigator.of(context).pop();
+
+                try {
+                  final response = await deleteService
+                      .deleteCommentByCommentUUID(context, widget.commentuuid);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Account deleted: $response')),
+                  );
+                } catch (e) {
+                  print('Error deleting Post: $e');
+                }
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.height * 0.2),
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  width: MediaQuery.of(context).size.height * 0.2,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(
+                      MediaQuery.of(context).size.height * 0.01,
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Delete',
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
-                  ],
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.delete,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Delete',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

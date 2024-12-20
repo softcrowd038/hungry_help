@@ -9,17 +9,14 @@ import 'package:quick_social/provider/profile_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
 class ProfileLocationPage extends StatefulWidget {
-  const ProfileLocationPage({
-    super.key,
-  });
+  const ProfileLocationPage({super.key});
 
   @override
   State<ProfileLocationPage> createState() => _ProfileLocationPage();
 }
 
 class _ProfileLocationPage extends State<ProfileLocationPage> {
-  final GlobalKey _globalKey = GlobalKey();
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _locationNameController = TextEditingController();
 
   loc.LocationData? _currentLocation;
@@ -38,46 +35,98 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
     bool serviceEnabled;
     loc.PermissionStatus permissionGranted;
 
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
-    }
+    try {
+      // Check if service is enabled
+      serviceEnabled = await location.serviceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await location.requestService();
+        if (!serviceEnabled) {
+          _showSnackBar('Location services are disabled.');
+          setState(() {
+            _isLoadingLocation = false;
+          });
+          return;
+        }
+      }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == loc.PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != loc.PermissionStatus.granted) return;
-    }
+      // Check for location permission
+      permissionGranted = await location.hasPermission();
+      if (permissionGranted == loc.PermissionStatus.denied) {
+        permissionGranted = await location.requestPermission();
+        if (permissionGranted != loc.PermissionStatus.granted) {
+          _showSnackBar('Location permission denied.');
+          setState(() {
+            _isLoadingLocation = false;
+          });
+          return;
+        }
+      }
 
-    _currentLocation = await location.getLocation();
-    _latitude = _currentLocation?.latitude;
-    _longitude = _currentLocation?.longitude;
+      _currentLocation = await location.getLocation();
+      _latitude = _currentLocation?.latitude;
+      _longitude = _currentLocation?.longitude;
 
-    if (_latitude != null && _longitude != null) {
-      try {
-        List<Placemark> placemarks =
-            await placemarkFromCoordinates(_latitude!, _longitude!);
-        Placemark place = placemarks[0];
+      if (_latitude != null && _longitude != null) {
+        try {
+          List<Placemark> placemarks =
+              await placemarkFromCoordinates(_latitude!, _longitude!);
+          Placemark place = placemarks[0];
 
+          setState(() {
+            _locationName =
+                '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
+            _locationNameController.text = _locationName!;
+            _isLoadingLocation = false;
+          });
+        } catch (e) {
+          _showSnackBar('Failed to get location name.');
+          setState(() {
+            _isLoadingLocation = false;
+          });
+        }
+      } else {
+        _showSnackBar('Failed to fetch location coordinates.');
         setState(() {
-          _locationName =
-              '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
-          _locationNameController.text = _locationName!;
-          _isLoadingLocation = false;
-        });
-      } catch (e) {
-        setState(() {
-          _locationNameController.text = 'Failed to get location';
           _isLoadingLocation = false;
         });
       }
+    } catch (e) {
+      _showSnackBar('An error occurred while fetching location.');
+      setState(() {
+        _isLoadingLocation = false;
+      });
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _onAddLocationPressed() {
+    if (!_formKey.currentState!.validate()) {
+      _showSnackBar('Please complete the location information.');
+      return;
+    }
+
+    if (_latitude == null || _longitude == null) {
+      _showSnackBar('Location data is incomplete.');
+      return;
+    }
+
+    final profileProvider =
+        Provider.of<UserProfileProvider>(context, listen: false);
+    profileProvider.setLocation(_locationNameController.text.trim());
+    profileProvider.setLatitude(_latitude!);
+    profileProvider.setLongitude(_longitude!);
+
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => const ProfileBirthdatePage()),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<UserProfileProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -114,10 +163,7 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.close,
-                            size: 22,
-                          ),
+                          icon: const Icon(Icons.close, size: 22),
                           color: Colors.white,
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -131,7 +177,7 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
             ),
             SliverToBoxAdapter(
               child: Form(
-                key: _globalKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     const Text(
@@ -141,9 +187,7 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
                     ),
                     const Text(
                       'Add your current location',
-                      style: TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 20),
                     Padding(
@@ -162,19 +206,17 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
                               : const Icon(Icons.place),
                         ),
                         onTap: _getCurrentLocation,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Location is required.';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
-                      onTap: () {
-                        profileProvider
-                            .setLocation(_locationNameController.text);
-                        profileProvider.setLatitude(_latitude!);
-                        profileProvider.setLongitude(_longitude!);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                const ProfileBirthdatePage()));
-                      },
+                      onTap: _onAddLocationPressed,
                       child: const ButtonWidget(
                         borderRadius: 0.06,
                         height: 0.06,
@@ -182,7 +224,7 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
                         text: 'Add Location',
                         textFontSize: 0.022,
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

@@ -520,11 +520,11 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                                     .updateStatusClosestInformer(
                                                         widget.informerId,
                                                         updateFields);
-                                                Navigator.push(
+                                                Navigator.pushReplacement(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            CaptureImageOrVideoPage()));
+                                                            const CaptureImageOrVideoPage()));
                                               },
                                               child: Text(
                                                 'Add post',
@@ -546,7 +546,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                                     .updateStatusClosestInformer(
                                                         widget.informerId,
                                                         updateFields);
-                                                Navigator.push(
+                                                Navigator.pushReplacement(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
@@ -582,7 +582,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                             updateStatusFields);
                         _service.updateStatusClosestInformer(
                             widget.informerId, updateStatusFields);
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const HomePage()));

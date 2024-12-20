@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/story/register_model.dart';
 import 'dart:convert';
 import 'package:quick_social/pages/login_page.dart';
@@ -23,7 +24,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
 
   bool _isLoading = false;
-  final String _registerUrl = 'http://192.168.1.2:8080/api/v1/register';
+  final String _registerUrl = '$baseUrl/register';
+
   Future<void> _registerUser() async {
     if (!_globalKey.currentState!.validate()) {
       return;
@@ -69,6 +71,51 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  String? _validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Username cannot be empty';
+    }
+    if (value.length < 3) {
+      return 'Username must be at least 3 characters long';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    if (value == null || value.isEmpty) {
+      return 'Email cannot be empty';
+    }
+    if (!emailRegex.hasMatch(value)) {
+      return 'Enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password cannot be empty';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!RegExp(r'[A-Za-z]').hasMatch(value) ||
+        !RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must include letters and numbers';
+    }
+    return null;
+  }
+
+  String? _validateReenteredPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please re-enter your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,14 +144,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Username',
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.person),
-                  validator: (value) {},
+                  validator: _validateUsername,
                 ),
                 TextFieldWidget(
                   controller: _emailController,
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.email),
-                  validator: (value) {},
+                  validator: _validateEmail,
                 ),
                 TextFieldWidget(
                   controller: _passwordController,
@@ -112,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.lock),
                   obscureText: true,
-                  validator: (value) {},
+                  validator: _validatePassword,
                 ),
                 TextFieldWidget(
                   controller: _reentrController,
@@ -120,7 +167,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   keyboardType: TextInputType.text,
                   prefixIcon: const Icon(Icons.lock),
                   obscureText: true,
-                  validator: (value) {},
+                  validator: _validateReenteredPassword,
                 ),
                 _isLoading
                     ? const CircularProgressIndicator()

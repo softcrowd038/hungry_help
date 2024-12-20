@@ -12,9 +12,7 @@ import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddLocationData extends StatefulWidget {
-  const AddLocationData({
-    super.key,
-  });
+  const AddLocationData({super.key});
 
   @override
   State<AddLocationData> createState() => _AddLocationData();
@@ -32,6 +30,7 @@ class _AddLocationData extends State<AddLocationData> {
 
   final loc.Location location = loc.Location();
 
+  // Get current location
   Future<void> _getCurrentLocation() async {
     setState(() {
       _isLoadingLocation = true;
@@ -89,12 +88,34 @@ class _AddLocationData extends State<AddLocationData> {
     }
   }
 
+  // Submit donation data with validation
   Future<void> submitDonation() async {
     setState(() {
       _isLoading = true;
     });
 
+    // Validate the form
     if (_globalKey.currentState!.validate()) {
+      if (_locationNameController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location is required')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      if (_latitude == null || _longitude == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location coordinates are missing')),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
       final donorDataProvider =
           Provider.of<DonorDataProvider>(context, listen: false);
 
@@ -256,6 +277,12 @@ class _AddLocationData extends State<AddLocationData> {
                               : const Icon(Icons.place),
                         ),
                         onTap: _getCurrentLocation,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Location is required';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -275,7 +302,7 @@ class _AddLocationData extends State<AddLocationData> {
                               text: 'SUBMIT',
                               textFontSize: 0.022,
                             ),
-                    )
+                    ),
                   ],
                 ),
               ),

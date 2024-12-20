@@ -61,22 +61,36 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
   }
 
   String getTimeDifference(String postDate, String postTime) {
-    final DateFormat dateTimeFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final DateFormat timeFormat = DateFormat('HH:mm:ss');
 
-    DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-    DateTime postDateParsed = dateFormat.parse(postDate);
+    DateTime postDateParsed =
+        dateFormat.parse('${DateTime.parse(postDate).toLocal()}');
+    DateTime postTimeParsed = timeFormat.parse(postTime);
 
-    String cleanedPostTime = postTime.replaceAll(RegExp(r'[TZ]'), '');
+    DateTime postDateTime = DateTime(
+      postDateParsed.year,
+      postDateParsed.month,
+      postDateParsed.day,
+      postTimeParsed.hour,
+      postTimeParsed.minute,
+      postTimeParsed.second,
+    );
 
-    String combinedDateTime =
-        '${dateFormat.format(postDateParsed)}T$cleanedPostTime';
+    DateTime now = DateTime.now();
+    DateTime currentDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
 
-    DateTime postDateTime = dateTimeFormat.parse(combinedDateTime);
+    print('currentDateTime : $currentDateTime');
 
-    final DateTime now = DateTime.now();
-
-    final Duration difference = now.difference(postDateTime);
-
+    final Duration difference = currentDateTime.difference(postDateTime);
+    print('difference : $difference');
     if (difference.inDays >= 1) {
       return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
     } else if (difference.inHours >= 1) {

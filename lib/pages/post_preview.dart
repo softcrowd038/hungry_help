@@ -11,7 +11,6 @@ import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/post_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player/video_player.dart';
 
 class PostPreview extends StatefulWidget {
   const PostPreview({super.key});
@@ -21,54 +20,11 @@ class PostPreview extends StatefulWidget {
 
 class _PostPreview extends State<PostPreview> {
   Map<String, dynamic> userProfile = {};
-  VideoPlayerController? _videoController;
-  bool _isVideoInitialized = false;
-  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
     getProfileData();
-  }
-
-  void _initializeVideo(PostProvider postProvider) async {
-    final postUrl = postProvider.postUrl;
-    if (postUrl == null) return; // Check if the post URL is valid.
-
-    if (postProvider.type == 'video' && postUrl.path.isNotEmpty) {
-      _videoController = VideoPlayerController.file(File(postUrl.path))
-        ..initialize().then((_) {
-          setState(() {
-            _isVideoInitialized = true;
-            _videoController!.setLooping(true); // Set looping if required
-          });
-        });
-    } else if (postProvider.type == 'video' && postUrl is Uri) {
-      _videoController = VideoPlayerController.network(postUrl.toString())
-        ..initialize().then((_) {
-          setState(() {
-            _isVideoInitialized = true;
-            _videoController!.setLooping(true);
-          });
-        });
-    }
-  }
-
-  @override
-  void dispose() {
-    _videoController?.dispose();
-    super.dispose();
-  }
-
-  void _togglePlayPause() {
-    setState(() {
-      if (_isPlaying) {
-        _videoController!.pause(); // Pause video
-      } else {
-        _videoController!.play(); // Play video
-      }
-      _isPlaying = !_isPlaying;
-    });
   }
 
   Future<void> getProfileData() async {
@@ -191,9 +147,7 @@ class _PostPreview extends State<PostPreview> {
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
     print(postProvider.type);
-    if (postProvider.type == 'video' && _videoController == null) {
-      _initializeVideo(postProvider);
-    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -298,34 +252,6 @@ class _PostPreview extends State<PostPreview> {
                               fontWeight: FontWeight.w100),
                         ),
                       ),
-                      if (postProvider.type == 'video')
-                        _isVideoInitialized
-                            ? Stack(
-                                children: [
-                                  AspectRatio(
-                                    aspectRatio:
-                                        _videoController!.value.aspectRatio,
-                                    child: VideoPlayer(_videoController!),
-                                  ),
-                                  Positioned(
-                                    top: MediaQuery.of(context).size.height *
-                                        0.35,
-                                    left: MediaQuery.of(context).size.width *
-                                        0.35,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        _isPlaying
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
-                                        size: 40.0,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: _togglePlayPause,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : const Center(child: CircularProgressIndicator()),
                       if (postProvider.type == 'image')
                         FutureBuilder<Size>(
                           future:

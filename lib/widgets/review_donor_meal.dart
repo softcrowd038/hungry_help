@@ -20,6 +20,7 @@ class _ReviewPageState extends State<ReviewPage> {
   @override
   Widget build(BuildContext context) {
     final donorProfileProvider = Provider.of<DonorDataProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -31,17 +32,32 @@ class _ReviewPageState extends State<ReviewPage> {
             ),
             TextButton(
               onPressed: () {
+                if (_descriptionController.text.trim().isEmpty) {
+                  _showSnackBar('Description cannot be empty.');
+                  return;
+                }
+
+                if (donorProfileProvider.imageurl == null) {
+                  _showSnackBar(
+                      'No image selected. Please go back and add an image.');
+                  return;
+                }
+
                 donorProfileProvider
                     .setDescription(_descriptionController.text);
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const AddMealDetails()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const AddMealDetails(),
+                  ),
+                );
               },
               child: Text(
                 'Next',
                 style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: MediaQuery.of(context).size.height * 0.022),
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  fontSize: MediaQuery.of(context).size.height * 0.022,
+                ),
               ),
             )
           ],
@@ -65,34 +81,60 @@ class _ReviewPageState extends State<ReviewPage> {
               ),
             ),
             const SizedBox(height: 10),
-            FutureBuilder<Size>(
-              future: _getImageSize(File(donorProfileProvider.imageurl!.path)),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final size = snapshot.data!;
-                  final aspectRatio = size.width / size.height;
-                  return LayoutBuilder(
-                    builder: (context, constraints) {
-                      double screenHeight = MediaQuery.of(context).size.height;
+            if (donorProfileProvider.imageurl != null)
+              FutureBuilder<Size>(
+                future:
+                    _getImageSize(File(donorProfileProvider.imageurl!.path)),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(
+                      child: Text(
+                        'Failed to load image.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    final size = snapshot.data!;
+                    final aspectRatio = size.width / size.height;
 
-                      return SizedBox(
-                        height:
-                            aspectRatio == 0.5625 ? screenHeight * 0.75 : null,
-                        child: AspectRatio(
-                          aspectRatio: aspectRatio,
-                          child: Image.file(
-                            File(donorProfileProvider.imageurl!.path),
-                            fit: BoxFit.cover,
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        double screenHeight =
+                            MediaQuery.of(context).size.height;
+
+                        return SizedBox(
+                          height: aspectRatio == 0.5625
+                              ? screenHeight * 0.75
+                              : null,
+                          child: AspectRatio(
+                            aspectRatio: aspectRatio,
+                            child: Image.file(
+                              File(donorProfileProvider.imageurl!.path),
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(
+                      child: Text(
+                        'No image available.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+                },
+              )
+            else
+              const Center(
+                child: Text(
+                  'No image selected.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
           ],
         ),
       ),
@@ -100,14 +142,30 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   Future<Size> _getImageSize(File imageFile) async {
-    final completer = Completer<Size>();
-    final image = Image.file(imageFile);
-    image.image.resolve(const ImageConfiguration()).addListener(
-      ImageStreamListener((ImageInfo info, bool _) {
-        completer.complete(
-            Size(info.image.width.toDouble(), info.image.height.toDouble()));
-      }),
-    );
-    return completer.future;
+    try {
+      final completer = Completer<Size>();
+      final image = Image.file(imageFile);
+      image.image.resolve(const ImageConfiguration()).addListener(
+        ImageStreamListener((ImageInfo info, bool _) {
+          completer.complete(
+            Size(info.image.width.toDouble(), info.image.height.toDouble()),
+          );
+        }),
+      );
+      return completer.future;
+    } catch (e) {
+      throw Exception('Failed to get image size: $e');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    super.dispose();
   }
 }

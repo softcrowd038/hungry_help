@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/profile_image.dart';
@@ -25,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  final String _loginUrl = 'http://192.168.1.2:8080/api/v1/login';
+  final String _loginUrl = '$baseUrl/login';
   UserAccount? profile;
   bool isLoading = true;
 
@@ -63,9 +64,8 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.setString('user_email', email);
         await prefs.setString('user_uuid', uuid);
 
-        await initializeData(uuid); // Await initialization to complete
+        await initializeData(uuid);
 
-        // Navigate based on profile
         if (profile != null &&
             profile!.userProfile.firstname != null &&
             profile!.userProfile.lastname != null) {
@@ -79,8 +79,7 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => const ProfileImagePage()),
           );
         }
-      }
-      if (response.statusCode == 404) {
+      } else if (response.statusCode == 404) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User not Found')),
         );
@@ -123,6 +122,27 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  String? _validateEmail(String? value) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (value == null || value.isEmpty) {
+      return 'Email cannot be empty';
+    }
+    if (!emailRegex.hasMatch(value)) {
+      return 'Enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password cannot be empty';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: const Icon(Icons.person),
-                  validator: (value) {},
+                  validator: _validateEmail,
                 ),
                 TextFieldWidget(
                   controller: _passwordController,
@@ -159,7 +179,7 @@ class _LoginPageState extends State<LoginPage> {
                   keyboardType: TextInputType.text,
                   obscureText: true,
                   prefixIcon: const Icon(Icons.lock),
-                  validator: (value) {},
+                  validator: _validatePassword,
                 ),
                 Padding(
                   padding: EdgeInsets.all(

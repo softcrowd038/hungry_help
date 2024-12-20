@@ -6,7 +6,7 @@ import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
 
-class AddMealDetails extends StatefulWidget { 
+class AddMealDetails extends StatefulWidget {
   const AddMealDetails({super.key});
 
   @override
@@ -14,7 +14,7 @@ class AddMealDetails extends StatefulWidget {
 }
 
 class _AddMealDetailsState extends State<AddMealDetails> {
-  final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _quantityEditingController =
       TextEditingController();
@@ -78,7 +78,7 @@ class _AddMealDetailsState extends State<AddMealDetails> {
             ),
             SliverToBoxAdapter(
               child: Form(
-                key: _globalKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     const Text(
@@ -162,7 +162,12 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                           prefixIcon: const Icon(Icons.date_range),
                           keyboardType: TextInputType.datetime,
                           obscureText: false,
-                          validator: (p0) {},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select an expiry date';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ),
@@ -186,7 +191,12 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                           prefixIcon: const Icon(Icons.watch),
                           keyboardType: TextInputType.datetime,
                           obscureText: false,
-                          validator: (p0) {},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select an expiry time';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ),
@@ -196,19 +206,30 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                       prefixIcon: const Icon(Icons.food_bank),
                       keyboardType: TextInputType.number,
                       obscureText: false,
-                      validator: (p0) {},
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter quantity or people count';
+                        }
+                        if (int.tryParse(value) == null ||
+                            int.parse(value) <= 0) {
+                          return 'Please enter a valid positive number';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
                       onTap: () {
-                        donorDataProvider
-                            .setDonationDate(_expiryDateEditingController.text);
-                        donorDataProvider
-                            .setDonationTime(_expirytimeEditingController.text);
-                        donorDataProvider
-                            .setQuantity(_quantityEditingController.text);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const AddLocationData()));
+                        if (_formKey.currentState!.validate()) {
+                          donorDataProvider.setDonationDate(
+                              _expiryDateEditingController.text);
+                          donorDataProvider.setDonationTime(
+                              _expirytimeEditingController.text);
+                          donorDataProvider
+                              .setQuantity(_quantityEditingController.text);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const AddLocationData()));
+                        }
                       },
                       child: const ButtonWidget(
                         borderRadius: 0.06,

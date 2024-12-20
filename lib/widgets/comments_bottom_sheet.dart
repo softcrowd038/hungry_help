@@ -36,6 +36,13 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   Future<void> postComment(
     BuildContext context,
   ) async {
+    if (_commentText.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Comment cannot be empty')),
+      );
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
     final uuid = prefs.getString('user_uuid');
@@ -68,18 +75,25 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
 
       if (response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
-        print(jsonResponse['message'] ?? 'Like status posted successfully.');
+        print(jsonResponse['message'] ?? 'Comment posted successfully.');
         Navigator.pop(context);
+        setState(() {
+          _commentText.clear();
+        });
+        await getCommentsByPostUUID(); // Refresh the comments after posting
       } else {
         final jsonResponse = json.decode(response.body);
-        final message = jsonResponse['message'] ?? 'Failed to post like status';
-        print('Error posting like status: ${response.statusCode} - $message');
+        final message = jsonResponse['message'] ?? 'Failed to post comment';
+        print('Error posting comment: ${response.statusCode} - $message');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $message')),
+        );
       }
     } catch (e) {
-      print('Error posting like status: $e');
+      print('Error posting comment: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('An error occurred while posting like status.')),
+            content: Text('An error occurred while posting your comment.')),
       );
     }
   }
@@ -210,7 +224,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   }
 
   Widget _commentTextField(ThemeData theme) {
-
     return Container(
       color: theme.colorScheme.secondaryContainer,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -241,7 +254,12 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
           const SizedBox(width: 4),
           IconButton(
             onPressed: () {
-              if (_commentText.text.isEmpty) return;
+              if (_commentText.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Comment cannot be empty')),
+                );
+                return;
+              }
               postComment(
                 context,
               );

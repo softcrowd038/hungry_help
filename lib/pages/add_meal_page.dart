@@ -1,10 +1,9 @@
 // ignore_for_file: avoid_print
 
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Import image_picker
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/provider/donor_data_provider.dart';
 import 'package:quick_social/widgets/review_donor_meal.dart';
@@ -21,7 +20,6 @@ class _AddMealPage extends State<AddMealPage> {
   List<CameraDescription>? _cameras;
   XFile? _capturedFile;
   int _selectedCameraIndex = 0;
-  bool isVideoSelected = false;
   final ImagePicker _imagePicker = ImagePicker();
 
   @override
@@ -31,26 +29,38 @@ class _AddMealPage extends State<AddMealPage> {
   }
 
   Future<void> _initializeCamera() async {
-    _cameras = await availableCameras();
-    _cameraController = CameraController(
-      _cameras![_selectedCameraIndex],
-      ResolutionPreset.high,
-    );
+    try {
+      _cameras = await availableCameras();
+      if (_cameras == null || _cameras!.isEmpty) {
+        _showSnackBar('No cameras available on this device.');
+        return;
+      }
+      _cameraController = CameraController(
+        _cameras![_selectedCameraIndex],
+        ResolutionPreset.high,
+      );
 
-    await _cameraController!.initialize();
-    if (!mounted) return;
-    setState(() {});
+      await _cameraController!.initialize();
+      setState(() {});
+    } catch (e) {
+      _showSnackBar('Failed to initialize camera: $e');
+    }
   }
 
   Future<void> _captureImage() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      _showSnackBar('Camera is not initialized.');
+      return;
+    }
+
     try {
       final XFile image = await _cameraController!.takePicture();
       setState(() {
         _capturedFile = image;
       });
-      _navigateToReviewPage(File(_capturedFile!.path));
+      _navigateToReviewPage(File(image.path));
     } catch (e) {
-      print('Error capturing image: $e');
+      _showSnackBar('Error capturing image: $e');
     }
   }
 
@@ -62,35 +72,48 @@ class _AddMealPage extends State<AddMealPage> {
         setState(() {
           _capturedFile = pickedFile;
         });
-        _navigateToReviewPage(File(_capturedFile!.path));
+        _navigateToReviewPage(File(pickedFile.path));
+      } else {
+        _showSnackBar('No image selected.');
       }
     } catch (e) {
-      print('Error picking image from gallery: $e');
+      _showSnackBar('Error picking image from gallery: $e');
     }
   }
 
   void _navigateToReviewPage(File capturedFile) {
-    print(capturedFile);
-    if (_capturedFile != null) {
-      final donorDataProvider =
-          Provider.of<DonorDataProvider>(context, listen: false);
-
-      donorDataProvider.setImageUrl(capturedFile);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ReviewPage(),
-        ),
-      );
+    if (_capturedFile == null) {
+      _showSnackBar('No image captured or selected.');
+      return;
     }
+
+    final donorDataProvider =
+        Provider.of<DonorDataProvider>(context, listen: false);
+    donorDataProvider.setImageUrl(capturedFile);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ReviewPage(),
+      ),
+    );
   }
 
   void _switchCamera() {
+    if (_cameras == null || _cameras!.length <= 1) {
+      _showSnackBar('No additional cameras available.');
+      return;
+    }
+
     setState(() {
-      _selectedCameraIndex =
-          (_selectedCameraIndex + 1) % (_cameras?.length ?? 1);
+      _selectedCameraIndex = (_selectedCameraIndex + 1) % _cameras!.length;
       _initializeCamera();
     });
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -102,28 +125,13 @@ class _AddMealPage extends State<AddMealPage> {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Add Meal',
-              style: TextStyle(color: Colors.white),
-            ),
-            // TextButton(
-            //     onPressed: () {
-            //       _navigateToReviewPage(File(_capturedFile!.path));
-            //     },
-            //     child: Text(
-            //       'Next',
-            //       style: TextStyle(
-            //           color: Colors.blue,
-            //           fontWeight: FontWeight.bold,
-            //           fontSize: MediaQuery.of(context).size.height * 0.022),
-            //     ))
-          ],
+        title: const Text(
+          'Add Meal',
+          style: TextStyle(color: Colors.white),
         ),
         automaticallyImplyLeading: false,
       ),
@@ -139,21 +147,12 @@ class _AddMealPage extends State<AddMealPage> {
                   child: Container(
                     height: MediaQuery.of(context).size.height * 0.050,
                     width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(
-                            MediaQuery.of(context).size.height * 0.090),
-                        bottomLeft: Radius.circular(
-                            MediaQuery.of(context).size.height * 0.090),
-                      ),
-                    ),
                     child: Center(
                       child: Text(
                         'Add image of remaining meal',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: MediaQuery.of(context).size.height * 0.0180,
+                          fontSize: MediaQuery.of(context).size.height * 0.018,
                         ),
                       ),
                     ),
@@ -177,10 +176,8 @@ class _AddMealPage extends State<AddMealPage> {
                         child: IconButton(
                           onPressed: _captureImage,
                           icon: Icon(
-                            isVideoSelected
-                                ? Icons.video_camera_back
-                                : Icons.camera_alt,
-                            color: const Color.fromARGB(255, 255, 255, 255),
+                            Icons.camera_alt,
+                            color: Colors.white,
                             size: MediaQuery.of(context).size.height * 0.040,
                           ),
                         ),

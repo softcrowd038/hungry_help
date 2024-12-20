@@ -7,12 +7,13 @@ import 'package:quick_social/widgets/layout/text_field.dart';
 
 class InformerPersonsCount extends StatefulWidget {
   const InformerPersonsCount({super.key});
+
   @override
   State<InformerPersonsCount> createState() => _InformerPersonsCount();
 }
 
 class _InformerPersonsCount extends State<InformerPersonsCount> {
-  final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _quantityEditingController =
       TextEditingController();
@@ -77,7 +78,7 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
             ),
             SliverToBoxAdapter(
               child: Form(
-                key: _globalKey,
+                key: _formKey,
                 child: Column(
                   children: [
                     const Text(
@@ -92,6 +93,7 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    // Expiry Date field with validation
                     GestureDetector(
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
@@ -115,10 +117,16 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                           prefixIcon: const Icon(Icons.date_range),
                           keyboardType: TextInputType.datetime,
                           obscureText: false,
-                          validator: (p0) {},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a date';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ),
+                    // Expiry Time field with validation
                     GestureDetector(
                       onTap: () async {
                         TimeOfDay? pickedTime = await showTimePicker(
@@ -139,30 +147,50 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                           prefixIcon: const Icon(Icons.watch),
                           keyboardType: TextInputType.datetime,
                           obscureText: false,
-                          validator: (p0) {},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a time';
+                            }
+                            return null;
+                          },
                         ),
                       ),
                     ),
+                    // Quantity field with validation
                     TextFieldWidget(
                       controller: _quantityEditingController,
                       hintText: 'Food Amount or People Count',
                       prefixIcon: const Icon(Icons.food_bank),
                       keyboardType: TextInputType.number,
                       obscureText: false,
-                      validator: (p0) {},
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a valid number';
+                        }
+                        if (int.tryParse(value) == null) {
+                          return 'Please enter a valid number';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 20),
+                    // Button to navigate to next page with form validation
                     GestureDetector(
                       onTap: () {
-                        informerDataProvider
-                            .setDonationDate(_expiryDateEditingController.text);
-                        informerDataProvider
-                            .setDonationTime(_expirytimeEditingController.text);
-                        informerDataProvider
-                            .setQuantity(_quantityEditingController.text);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                const InformerCameraReviewPage()));
+                        if (_formKey.currentState!.validate()) {
+                          // Set values in informer data provider
+                          informerDataProvider.setDonationDate(
+                              _expiryDateEditingController.text);
+                          informerDataProvider.setDonationTime(
+                              _expirytimeEditingController.text);
+                          informerDataProvider
+                              .setQuantity(_quantityEditingController.text);
+
+                          // Navigate to the next screen
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  const InformerCameraReviewPage()));
+                        }
                       },
                       child: const ButtonWidget(
                         borderRadius: 0.06,

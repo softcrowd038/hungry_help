@@ -19,6 +19,7 @@ class CommentsPostPreview extends StatefulWidget {
 
 class _CommentsPostPreviewState extends State<CommentsPostPreview> {
   List<String> _comments = [];
+  List<String> _commentsUUID = [];
   List<String> _uuid = [];
 
   @override
@@ -58,6 +59,9 @@ class _CommentsPostPreviewState extends State<CommentsPostPreview> {
           setState(() {
             _comments =
                 commentData.map<String>((item) => item['comment']).toList();
+            _commentsUUID = commentData
+                .map<String>((item) => item['comment_uuid'])
+                .toList();
             _uuid =
                 commentData.map<String>((item) => item['user_uuid']).toList();
           });
@@ -104,11 +108,13 @@ class _CommentsPostPreviewState extends State<CommentsPostPreview> {
                               child: CommentTilePreview(
                                 comment: _comments[index],
                                 uuid: _uuid[index],
+                                commentuuid: _commentsUUID[index],
                               ),
                             )
                           : CommentTilePreview(
                               comment: _comments[index],
                               uuid: _uuid[index],
+                              commentuuid: _commentsUUID[index],
                             );
                     },
                   ),

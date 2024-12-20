@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -94,7 +94,7 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
   }
 
   Widget _postsGridView(BuildContext context) {
-    if (postData == null || postData.isEmpty) {
+    if (postData.isEmpty) {
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.5,
         child: const Center(
