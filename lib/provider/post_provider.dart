@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:quick_social/models/posts_model.dart';
 
-
 class PostProvider with ChangeNotifier {
   PostModel _post = PostModel();
   final List<PostModel> _posts = [];
@@ -14,7 +13,6 @@ class PostProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   List<PostModel> get posts => _posts;
 
-  // Getters
   int? get id => _post.id;
   String? get uuid => _post.uuid;
   String? get postUuid => _post.postUuid;
@@ -27,7 +25,6 @@ class PostProvider with ChangeNotifier {
   int? get likes => _post.likes;
   DateTime? get createdAt => _post.createdAt;
 
-  // Setters
   void setId(int? value) {
     _post = _post.copyWith(id: value);
     notifyListeners();

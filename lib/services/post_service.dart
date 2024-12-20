@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -76,10 +76,10 @@ class DeletePostService {
   }
 
   Future<List<dynamic>> deleteCommentByCommentUUID(
-      BuildContext context, String comment_uuid) async {
+      BuildContext context, String commentUuid) async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final authToken = sharedPreferences.getString('auth_token');
-    final url = Uri.parse('$baseUrl/deletecommentsbycommentuuid/$comment_uuid');
+    final url = Uri.parse('$baseUrl/deletecommentsbycommentuuid/$commentUuid');
 
     try {
       final response = await http

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +82,6 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
         ),
       );
     } else {
-      // Show an error message if no image is captured
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Please capture or select an image first.')),
@@ -117,7 +118,6 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
             ),
             TextButton(
                 onPressed: () {
-                  // Ensure an image is captured before proceeding
                   if (_capturedFile == null) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

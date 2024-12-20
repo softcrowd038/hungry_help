@@ -36,7 +36,6 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
     loc.PermissionStatus permissionGranted;
 
     try {
-      // Check if service is enabled
       serviceEnabled = await location.serviceEnabled();
       if (!serviceEnabled) {
         serviceEnabled = await location.requestService();
@@ -49,7 +48,6 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
         }
       }
 
-      // Check for location permission
       permissionGranted = await location.hasPermission();
       if (permissionGranted == loc.PermissionStatus.denied) {
         permissionGranted = await location.requestPermission();

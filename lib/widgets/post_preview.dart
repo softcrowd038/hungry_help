@@ -227,7 +227,7 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                           builder: (context) => const HomePage()));
 
                   try {
-                    final response = await deleteService.deletePostByPostUUId(
+                    await deleteService.deletePostByPostUUId(
                         context, widget.postUuid);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Post deleted')),
@@ -269,7 +269,6 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                   ),
                 ),
               ),
-            // Post Content
             if (!isLoading) ...[
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

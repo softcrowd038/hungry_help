@@ -39,7 +39,7 @@ class _RoutePage extends State<RoutePage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => CaptureImageOrVideoPage()));
+                        builder: (context) => const CaptureImageOrVideoPage()));
               },
               child: const ButtonWidget(
                 borderRadius: 0.06,

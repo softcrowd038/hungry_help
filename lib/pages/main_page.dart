@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, avoid_print
 import 'package:flutter/material.dart';
 import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';

@@ -30,7 +30,6 @@ class _AddLocationData extends State<AddLocationData> {
 
   final loc.Location location = loc.Location();
 
-  // Get current location
   Future<void> _getCurrentLocation() async {
     setState(() {
       _isLoadingLocation = true;
@@ -88,13 +87,11 @@ class _AddLocationData extends State<AddLocationData> {
     }
   }
 
-  // Submit donation data with validation
   Future<void> submitDonation() async {
     setState(() {
       _isLoading = true;
     });
 
-    // Validate the form
     if (_globalKey.currentState!.validate()) {
       if (_locationNameController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(

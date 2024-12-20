@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/common/common.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/models.dart';
 import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/update_profile.dart';
@@ -37,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
   int? following;
   FollowersService followersService = FollowersService();
   UserAccount? profile;
-  bool isLoading = true; // Track loading state
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -57,8 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      await userProvider
-          .fetchUserProfile(uuid); // Ensure we await data fetching
+      await userProvider.fetchUserProfile(uuid);
       final fetchedProfile = userProvider.getUser(uuid);
 
       if (!mounted) return;
@@ -191,9 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final textTheme = theme.textTheme;
 
     if (isLoading) {
-      return const Center(
-          child:
-              CircularProgressIndicator()); // Show a loading indicator while fetching data
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (profile == null) {
@@ -278,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: CircleAvatar(
                 backgroundImage: profile!.userProfile.imageurl != null
                     ? NetworkImage(
-                        'http://192.168.1.2:8080/${profile!.userProfile.imageurl}')
+                        '$imageBaseUrl/${profile!.userProfile.imageurl}')
                     : const AssetImage('assets/placeholder_avatar.png'),
               ),
             ),

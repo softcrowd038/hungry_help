@@ -198,7 +198,6 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
           children: [
             ListTile(
                 leading: CircleAvatar(
-                  // ignore: unnecessary_null_comparison
                   backgroundImage: profile.userProfile.imageurl != null
                       ? NetworkImage(
                           '$imageBaseUrl${profile.userProfile.imageurl}',
@@ -294,7 +293,7 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
                                 horizontal:
                                     MediaQuery.of(context).size.height * 0.015),
                             child: Image.network(
-                              'http://192.168.1.2:8080/${post['post_url']}',
+                              '$imageBaseUrl${post['post_url']}',
                               fit: BoxFit.cover,
                               loadingBuilder:
                                   (context, child, loadingProgress) {

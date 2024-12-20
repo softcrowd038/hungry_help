@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -5,15 +7,14 @@ import 'package:quick_social/data/app_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LikeStatusProvider with ChangeNotifier {
-  final Map<String, bool> _likeStatusMap = {}; // Post UUID -> Like Status
-  final Map<String, int> _likeCountMap = {}; // Post UUID -> Like Count
-  final Map<String, int> _totalLikesMap = {}; // Post UUID -> Total Likes
+  final Map<String, bool> _likeStatusMap = {};
+  final Map<String, int> _likeCountMap = {};
+  final Map<String, int> _totalLikesMap = {};
 
   bool isLiked(String postUuid) => _likeStatusMap[postUuid] ?? false;
   int likeCount(String postUuid) => _likeCountMap[postUuid] ?? 0;
   int totalLikes(String postUuid) => _totalLikesMap[postUuid] ?? 0;
 
-  // Fetch the like status for a given post UUID
   Future<void> fetchLikeStatus(String postUuid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -45,7 +46,6 @@ class LikeStatusProvider with ChangeNotifier {
     }
   }
 
-  // Fetch total likes for a given post
   Future<void> getTotalLikes(String postUuid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -80,7 +80,6 @@ class LikeStatusProvider with ChangeNotifier {
     }
   }
 
-  // Toggle like status for a given post
   Future<void> toggleLikeStatus(BuildContext context, String postUuid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -116,7 +115,7 @@ class LikeStatusProvider with ChangeNotifier {
       if (response.statusCode == 200 || response.statusCode == 201) {
         _likeStatusMap[postUuid] = newStatus;
         _likeCountMap[postUuid] = newLikes;
-        // After toggling like, fetch total likes
+
         await getTotalLikes(postUuid);
       } else {
         print('Error toggling like status: ${response.statusCode}');

@@ -26,7 +26,6 @@ class UserProfileProvider with ChangeNotifier {
   String get birthdate => _birthdate;
   String get status => _status;
 
-  // Setters
   void setUuid(String value) {
     _uuid = value;
     notifyListeners();

@@ -75,7 +75,7 @@ class _PostPreview extends State<PostPreview> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.2:8080/api/v1/create');
+      final url = Uri.parse('$baseUrl/create');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid;
@@ -194,7 +194,7 @@ class _PostPreview extends State<PostPreview> {
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.15),
                               child: Image.network(
-                                'http://192.168.1.2:8080/${userProfile['imageurl']}',
+                                '$imageBaseUrl/${userProfile['imageurl']}',
                                 height:
                                     MediaQuery.of(context).size.height * 0.07,
                                 width:

@@ -80,7 +80,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
         setState(() {
           _commentText.clear();
         });
-        await getCommentsByPostUUID(); // Refresh the comments after posting
+        await getCommentsByPostUUID();
       } else {
         final jsonResponse = json.decode(response.body);
         final message = jsonResponse['message'] ?? 'Failed to post comment';

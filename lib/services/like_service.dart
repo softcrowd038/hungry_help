@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -5,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:quick_social/data/app_data.dart';
 
 class LikeService {
-  /// Posts a like status for a post
   Future<void> postLikeStatus(BuildContext context, String postUuid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -88,7 +89,6 @@ class LikeService {
     }
   }
 
-  /// Toggles the like status for a post
   Future<void> toggleLikeStatus(BuildContext context, String postUuid) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');

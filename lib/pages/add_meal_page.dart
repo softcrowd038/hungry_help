@@ -144,7 +144,7 @@ class _AddMealPage extends State<AddMealPage> {
                 ),
                 Positioned(
                   bottom: 100.0,
-                  child: Container(
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height * 0.050,
                     width: MediaQuery.of(context).size.width,
                     child: Center(

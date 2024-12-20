@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, body_might_complete_normally_nullable, avoid_print
 
 import 'dart:convert';
 import 'dart:io';
@@ -337,7 +337,7 @@ void _showDeleteAccountDialog(BuildContext parentContext) {
           TextButton(
             onPressed: () async {
               final accountService = UserApiService();
-              Navigator.of(context).pop(); // Close the dialog first
+              Navigator.of(context).pop();
 
               try {
                 final response = await accountService.deleteUser(parentContext);

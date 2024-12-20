@@ -9,7 +9,6 @@ class UserModel {
     required this.password,
   });
 
-  // Convert a UserModel object to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'username': username,
@@ -18,7 +17,6 @@ class UserModel {
     };
   }
 
-  // If you need to create a UserModel from JSON (e.g., from a response)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       username: json['username'],

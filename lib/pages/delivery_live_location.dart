@@ -1,10 +1,12 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart' as gMaps;
+import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/live_location_provider.dart';
 import 'package:quick_social/services/closest_informer_service.dart';
@@ -20,15 +22,14 @@ class LiveLocationTracker extends StatefulWidget {
 }
 
 class LiveLocationTrackerState extends State<LiveLocationTracker> {
-  gMaps.GoogleMapController? mapController;
+  gmaps.GoogleMapController? mapController;
   bool _isTextVisible = false;
-  // ignore: unused_field
   bool _showInitialMessage = true;
   bool _showCurrentAddress = false;
-  late gMaps.LatLng destinationPosition;
+  late gmaps.LatLng destinationPosition;
   bool showDeliveryDoneButton = false;
-  Set<gMaps.Marker> _markers = {};
-  Set<gMaps.Polyline> _polylines = {};
+  Set<gmaps.Marker> _markers = {};
+  Set<gmaps.Polyline> _polylines = {};
   final ClosestInformerService _service = ClosestInformerService();
   Map<String, dynamic> closestInformerData = {};
   Map<String, dynamic> updateFields = {
@@ -37,7 +38,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
   Map<String, dynamic> updateStatusFields = {
     'status': 'active',
   };
-  gMaps.BitmapDescriptor markerIcon = gMaps.BitmapDescriptor.defaultMarker;
+  gmaps.BitmapDescriptor markerIcon = gmaps.BitmapDescriptor.defaultMarker;
 
   @override
   void initState() {
@@ -68,7 +69,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
         setState(() {
           closestInformerData = data[0];
 
-          destinationPosition = gMaps.LatLng(
+          destinationPosition = gmaps.LatLng(
             double.parse(closestInformerData['latitude'] ?? '0.0'),
             double.parse(closestInformerData['longitude'] ?? '0.0'),
           );
@@ -82,7 +83,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
   }
 
   void addCustomMarkerIcon() {
-    gMaps.BitmapDescriptor.asset(const ImageConfiguration(size: Size(40, 40)),
+    gmaps.BitmapDescriptor.asset(const ImageConfiguration(size: Size(40, 40)),
             'assets/images/maps-and-flags.png')
         .then((icon) {
       setState(() {
@@ -128,7 +129,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
     super.dispose();
   }
 
-  void _onMapCreated(gMaps.GoogleMapController controller) {
+  void _onMapCreated(gmaps.GoogleMapController controller) {
     setState(() {
       mapController = controller;
     });
@@ -166,7 +167,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
             children: [
               Consumer<LocationProvider>(
                 builder: (context, locationProvider, _) {
-                  gMaps.LatLng? currentPosition =
+                  gmaps.LatLng? currentPosition =
                       locationProvider.currentPosition;
                   String? currentAddress = locationProvider.currentAddress;
 
@@ -193,8 +194,8 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                     if (destinationPosition.latitude != 0.0 &&
                         destinationPosition.longitude != 0.0) {
                       _polylines = {
-                        gMaps.Polyline(
-                          polylineId: const gMaps.PolylineId('route'),
+                        gmaps.Polyline(
+                          polylineId: const gmaps.PolylineId('route'),
                           points: [currentPosition, destinationPosition],
                           color: Colors.blue,
                           width: 5,
@@ -202,19 +203,19 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                       };
                     }
                     _markers = {
-                      gMaps.Marker(
-                        markerId: const gMaps.MarkerId('current_location'),
+                      gmaps.Marker(
+                        markerId: const gmaps.MarkerId('current_location'),
                         position: currentPosition,
-                        infoWindow: gMaps.InfoWindow(
+                        infoWindow: gmaps.InfoWindow(
                           title: 'Current Location',
                           snippet:
                               'Latitude: ${currentPosition.latitude}, Longitude: ${currentPosition.longitude}',
                         ),
                       ),
-                      gMaps.Marker(
-                        markerId: const gMaps.MarkerId('destination_location'),
+                      gmaps.Marker(
+                        markerId: const gmaps.MarkerId('destination_location'),
                         position: destinationPosition,
-                        infoWindow: gMaps.InfoWindow(
+                        infoWindow: gmaps.InfoWindow(
                           title: 'Destination',
                           snippet:
                               'Latitude: ${destinationPosition.latitude}, Longitude: ${destinationPosition.longitude}',
@@ -224,7 +225,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                     };
 
                     mapController?.moveCamera(
-                        gMaps.CameraUpdate.newLatLng(currentPosition));
+                        gmaps.CameraUpdate.newLatLng(currentPosition));
                   }
 
                   return GestureDetector(
@@ -237,15 +238,15 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                         children: [
                           currentPosition == null
                               ? const Center(child: CircularProgressIndicator())
-                              : gMaps.GoogleMap(
+                              : gmaps.GoogleMap(
                                   onMapCreated: _onMapCreated,
-                                  initialCameraPosition: gMaps.CameraPosition(
+                                  initialCameraPosition: gmaps.CameraPosition(
                                     target: currentPosition,
                                     zoom: 15,
                                   ),
                                   myLocationEnabled: true,
                                   compassEnabled: true,
-                                  mapType: gMaps.MapType.normal,
+                                  mapType: gmaps.MapType.normal,
                                   markers: _markers,
                                   polylines: _polylines,
                                 ),

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'package:quick_social/data/app_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,15 +29,15 @@ class FollowersService {
                 int.tryParse(stats['total_followers'].toString()) ?? 0,
           };
         } else {
-          return {'total_followers': 0}; // Handle no stats found
+          return {'total_followers': 0};
         }
       } else {
         print('Failed to fetch followers: ${response.statusCode}');
-        return {'total_followers': 0}; // Handle error status codes
+        return {'total_followers': 0};
       }
     } catch (e) {
       print('Error fetching followers count: $e');
-      return {'total_followers': 0}; // Handle exceptions
+      return {'total_followers': 0};
     }
   }
 
@@ -62,15 +64,15 @@ class FollowersService {
                 int.tryParse(stats['total_following'].toString()) ?? 0,
           };
         } else {
-          return {'total_following': 0}; // Handle no stats found
+          return {'total_following': 0};
         }
       } else {
         print('Failed to fetch following: ${response.statusCode}');
-        return {'total_following': 0}; // Handle error status codes
+        return {'total_following': 0};
       }
     } catch (e) {
       print('Error fetching following count: $e');
-      return {'total_following': 0}; // Handle exceptions
+      return {'total_following': 0};
     }
   }
 }

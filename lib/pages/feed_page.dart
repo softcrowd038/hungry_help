@@ -44,14 +44,6 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  void _handleError(http.Response response) {
-    if (response.statusCode == 500) {
-      throw Exception('error');
-    } else {
-      print('Error: ${response.body}');
-    }
-  }
-
   Future<void> getPosts() async {
     final url = Uri.parse('$baseUrl/getposts');
     final sharedPreferences = await SharedPreferences.getInstance();
@@ -77,9 +69,8 @@ class _FeedPageState extends State<FeedPage> {
           _isLoading = false;
         });
       } else if (response.statusCode == 404) {
-        // Handle case when posts table doesn't exist
         setState(() {
-          data = {'data': []}; // Empty posts list
+          data = {'data': []};
           _isLoading = false;
         });
       } else {
@@ -88,7 +79,7 @@ class _FeedPageState extends State<FeedPage> {
     } catch (e) {
       print('Error fetching posts: $e');
       setState(() {
-        data = {'data': []}; // Default to empty data on failure
+        data = {'data': []};
         _isLoading = false;
       });
     }

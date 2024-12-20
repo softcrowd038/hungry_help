@@ -93,7 +93,6 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Expiry Date field with validation
                     GestureDetector(
                       onTap: () async {
                         DateTime? pickedDate = await showDatePicker(
@@ -126,7 +125,6 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                         ),
                       ),
                     ),
-                    // Expiry Time field with validation
                     GestureDetector(
                       onTap: () async {
                         TimeOfDay? pickedTime = await showTimePicker(
@@ -156,7 +154,6 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                         ),
                       ),
                     ),
-                    // Quantity field with validation
                     TextFieldWidget(
                       controller: _quantityEditingController,
                       hintText: 'Food Amount or People Count',
@@ -174,11 +171,9 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                       },
                     ),
                     const SizedBox(height: 20),
-                    // Button to navigate to next page with form validation
                     GestureDetector(
                       onTap: () {
                         if (_formKey.currentState!.validate()) {
-                          // Set values in informer data provider
                           informerDataProvider.setDonationDate(
                               _expiryDateEditingController.text);
                           informerDataProvider.setDonationTime(
@@ -186,7 +181,6 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                           informerDataProvider
                               .setQuantity(_quantityEditingController.text);
 
-                          // Navigate to the next screen
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) =>
                                   const InformerCameraReviewPage()));

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/confirm_order.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 
@@ -47,7 +48,7 @@ class _NeedyPeopleBox extends State<NeedyPeopleBox> {
                   borderRadius: BorderRadius.circular(
                       MediaQuery.of(context).size.height * 0.075),
                   child: Image.network(
-                    'http://192.168.1.2:8080/${widget.imageUrl}',
+                    '$imageBaseUrl${widget.imageUrl}',
                     fit: BoxFit.cover,
                   ),
                 )),

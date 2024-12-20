@@ -1,5 +1,4 @@
-// Updated PostService
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unused_local_variable, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:io';
@@ -102,8 +101,8 @@ class PostService {
     final Map<String, dynamic> body = {
       'uuid': uuid,
       'post_uuid': postUuid,
-      'status': 'inactive', // Default status
-      'likes': 0 // Default like count
+      'status': 'inactive',
+      'likes': 0
     };
 
     try {
@@ -118,7 +117,6 @@ class PostService {
 
       if (response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
-        // Handle successful response (if needed)
       } else {
         final jsonResponse = json.decode(response.body);
         final message = jsonResponse['message'] ?? 'Failed to post like status';
@@ -133,7 +131,6 @@ class PostService {
     }
   }
 
-  // Method to post follow status
   Future<void> postFollowStatus(BuildContext context, String userUUID) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
@@ -152,9 +149,9 @@ class PostService {
     final Map<String, dynamic> body = {
       'account_uuid': userUUID,
       'followed_by_uuid': uuid,
-      'status': 'unfollow', // Default status
-      'follower': 0, // Default follower count
-      'following': 0, // Default following count
+      'status': 'unfollow',
+      'follower': 0,
+      'following': 0,
     };
 
     try {
@@ -169,7 +166,6 @@ class PostService {
 
       if (response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
-        // Handle successful response (if needed)
       } else if (response.statusCode == 400) {
         final jsonResponse = json.decode(response.body);
         print(

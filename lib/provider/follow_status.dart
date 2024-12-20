@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';

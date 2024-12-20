@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -129,14 +129,13 @@ class ClosestInformerService {
     final url = Uri.parse('$baseUrl/informerClosestUpdate/$closestID');
 
     try {
-      // Prepare the data dynamically based on the fields passed
-      final body = jsonEncode(fieldsToUpdate); // Fields passed as map
+      final body = jsonEncode(fieldsToUpdate);
 
       final response = await http.patch(
         url,
         headers: {
           'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json', // Set content type as JSON
+          'Content-Type': 'application/json',
         },
         body: body,
       );
@@ -158,14 +157,13 @@ class ClosestInformerService {
     final url = Uri.parse('$baseUrl/informerupdate/$uuid');
 
     try {
-      // Prepare the data dynamically based on the fields passed
-      final body = jsonEncode(fieldsToUpdate); // Fields passed as map
+      final body = jsonEncode(fieldsToUpdate);
 
       final response = await http.patch(
         url,
         headers: {
           'Authorization': 'Bearer $authToken',
-          'Content-Type': 'application/json', // Set content type as JSON
+          'Content-Type': 'application/json',
         },
         body: body,
       );

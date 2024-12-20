@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+// ignore_for_file: avoid_print, use_build_context_synchronously, unnecessary_null_comparison
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -156,7 +156,6 @@ class _PostCardState extends State<PostCard> {
           children: [
             ListTile(
               leading: CircleAvatar(
-                // ignore: unnecessary_null_comparison
                 backgroundImage: profile.userProfile.imageurl != null
                     ? NetworkImage(
                         '$imageBaseUrl${profile.userProfile.imageurl}',
@@ -267,7 +266,7 @@ class _PostCardState extends State<PostCard> {
                                 horizontal:
                                     MediaQuery.of(context).size.height * 0.015),
                             child: Image.network(
-                              'http://192.168.1.2:8080/${post['post_url']}',
+                              '$imageBaseUrl${post['post_url']}',
                               fit: BoxFit.cover,
                               loadingBuilder:
                                   (context, child, loadingProgress) {

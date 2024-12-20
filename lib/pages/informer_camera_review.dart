@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/informer_data_provider.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
@@ -103,7 +104,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
       }
 
       final String authToken = token;
-      final url = Uri.parse('http://192.168.1.2:8080/api/v1/informer');
+      final url = Uri.parse('$baseUrl/informer');
 
       var request = http.MultipartRequest('POST', url);
       request.fields['uuid'] = uuid!;
