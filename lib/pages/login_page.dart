@@ -181,22 +181,6 @@ class _LoginPageState extends State<LoginPage> {
                   prefixIcon: const Icon(Icons.lock),
                   validator: _validatePassword,
                 ),
-                Padding(
-                  padding: EdgeInsets.all(
-                    MediaQuery.of(context).size.height * 0.012,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.height * 0.022,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
                 _isLoading
                     ? const CircularProgressIndicator()
                     : GestureDetector(

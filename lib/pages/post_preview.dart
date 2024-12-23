@@ -194,7 +194,7 @@ class _PostPreview extends State<PostPreview> {
                               borderRadius: BorderRadius.circular(
                                   MediaQuery.of(context).size.height * 0.15),
                               child: Image.network(
-                                '$imageBaseUrl/${userProfile['imageurl']}',
+                                '$imageBaseUrl${userProfile['imageurl']}',
                                 height:
                                     MediaQuery.of(context).size.height * 0.07,
                                 width:

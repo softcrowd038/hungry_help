@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/login_page.dart';
-import 'package:quick_social/pages/notifications_page.dart';
 import 'package:quick_social/services/add_post_service.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:http/http.dart' as http;
@@ -118,26 +117,7 @@ class _FeedPageState extends State<FeedPage> {
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.notifications_none),
-              title: const Text('Notifications'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
+           
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),

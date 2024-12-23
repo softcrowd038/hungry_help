@@ -7,6 +7,7 @@ import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmaps;
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/provider/live_location_provider.dart';
 import 'package:quick_social/services/closest_informer_service.dart';
@@ -337,7 +338,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                     child:
                                         closestInformerData['imageurl'] != null
                                             ? Image.network(
-                                                'http://192.168.1.2:8080/${closestInformerData['imageurl']}',
+                                                '$imageBaseUrl${closestInformerData['imageurl']}',
                                                 scale: 1.0,
                                                 fit: BoxFit.cover,
                                               )

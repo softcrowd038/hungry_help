@@ -4,7 +4,6 @@ import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/informer_capture_image.dart';
 import 'package:quick_social/pages/login_page.dart';
-import 'package:quick_social/pages/notifications_page.dart';
 import 'package:quick_social/services/closest_informer_service.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
@@ -110,26 +109,6 @@ class _MainPage extends State<MainPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.notifications_none),
-              title: const Text('Notifications'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
@@ -151,6 +130,19 @@ class _MainPage extends State<MainPage> {
                   'Who you are?',
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.height * 0.022,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.height * 0.020),
+                child: Center(
+                  child: Text(
+                    'Enter How Much food you have to get people near you.',
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.018,
+                        fontWeight: FontWeight.w100,
+                        color: Colors.black.withOpacity(0.5)),
                   ),
                 ),
               ),

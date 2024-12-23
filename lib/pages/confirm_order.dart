@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/delivery_live_location.dart';
 import 'package:quick_social/services/closest_informer_service.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
@@ -124,7 +125,7 @@ class _ConfirmOrder extends State<ConfirmOrder> {
                             ),
                           ),
                           Image.network(
-                            'http://192.168.1.2:8080/${closestInformerData['imageurl']}',
+                            '$imageBaseUrl${closestInformerData['imageurl']}',
                             scale: 1.0,
                             fit: BoxFit.cover,
                             height: MediaQuery.of(context).size.height * 0.50,

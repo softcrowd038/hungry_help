@@ -278,7 +278,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: CircleAvatar(
                 backgroundImage: profile!.userProfile.imageurl != null
                     ? NetworkImage(
-                        '$imageBaseUrl/${profile!.userProfile.imageurl}')
+                        '$imageBaseUrl${profile!.userProfile.imageurl}')
                     : const AssetImage('assets/placeholder_avatar.png'),
               ),
             ),
