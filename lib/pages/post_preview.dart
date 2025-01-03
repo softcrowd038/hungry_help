@@ -200,6 +200,18 @@ class _PostPreview extends State<PostPreview> {
                                 width:
                                     MediaQuery.of(context).size.height * 0.07,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[
+                                        300], // Placeholder background color
+                                    child: Icon(
+                                      Icons.person, // Fallback icon
+                                      size: MediaQuery.of(context).size.height *
+                                          0.04,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           SizedBox(

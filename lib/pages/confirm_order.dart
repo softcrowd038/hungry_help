@@ -130,6 +130,23 @@ class _ConfirmOrder extends State<ConfirmOrder> {
                             fit: BoxFit.cover,
                             height: MediaQuery.of(context).size.height * 0.50,
                             width: MediaQuery.of(context).size.width,
+                            errorBuilder: (BuildContext context, Object error,
+                                StackTrace? stackTrace) {
+                              return Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.50,
+                                width: MediaQuery.of(context).size.width,
+                                color: Colors.grey[200],
+                                child: Center(
+                                  child: Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.10,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                           Padding(
                             padding: EdgeInsets.all(

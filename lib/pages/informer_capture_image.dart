@@ -50,6 +50,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
       setState(() {
         _capturedFile = image;
       });
+      _navigateToReviewPage(File(image.path));
     } catch (e) {
       print('Error capturing image: $e');
     }
@@ -63,6 +64,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
         setState(() {
           _capturedFile = pickedFile;
         });
+        _navigateToReviewPage(File(pickedFile.path));
       }
     } catch (e) {
       print('Error picking image from gallery: $e');

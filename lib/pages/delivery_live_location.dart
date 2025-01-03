@@ -333,20 +333,28 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                               0.075)),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(
-                                        MediaQuery.of(context).size.height *
-                                            0.075),
-                                    child:
-                                        closestInformerData['imageurl'] != null
-                                            ? Image.network(
-                                                '$imageBaseUrl${closestInformerData['imageurl']}',
-                                                scale: 1.0,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Image.network(
-                                                'https://cdn-icons-png.flaticon.com/512/681/681494.png',
-                                                scale: 1.0,
-                                                fit: BoxFit.cover,
-                                              ),
+                                      MediaQuery.of(context).size.height *
+                                          0.075,
+                                    ),
+                                    child: Image.network(
+                                      '$imageBaseUrl${closestInformerData['imageurl']}',
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Container(
+                                          color: Colors.grey[
+                                              300], // Placeholder background color
+                                          child: Icon(
+                                            Icons.person, // Fallback icon
+                                            size: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.04,
+                                            color: Colors.grey,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ),
                                 SizedBox(

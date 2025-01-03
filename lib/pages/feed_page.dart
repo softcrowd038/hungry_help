@@ -117,7 +117,6 @@ class _FeedPageState extends State<FeedPage> {
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
-           
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),

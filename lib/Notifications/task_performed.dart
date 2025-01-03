@@ -1,10 +1,20 @@
-import 'package:workmanager/workmanager.dart';
+import 'dart:async';
 
-void scheduleBackgroundTask() {
-  print('entered periodic task');
-  Workmanager().registerPeriodicTask(
-    '1',
-    'simpleTask',
-    frequency: const Duration(minutes: 15), // Minimum time for periodic tasks
-  );
+import 'package:quick_social/Notifications/notifications_service.dart';
+import 'package:quick_social/data/notification_data.dart';
+
+NotificationService notificationService = NotificationService();
+
+void startNotificationLoop() {
+  int i = 0;
+  Timer.periodic(const Duration(minutes: 20), (timer) {
+    final notification = notifications[i];
+    notificationService.showNotification(
+      id: i + 1,
+      title: notification['title'],
+      body: notification['body'],
+      payload: 'Payload for notification ${i + 1}',
+    );
+    i = (i + 1) % notifications.length;
+  });
 }

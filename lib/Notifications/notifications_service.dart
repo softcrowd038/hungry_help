@@ -1,8 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:quick_social/Notifications/task_performed.dart';
 
 void backgroundNotificationResponseHandler(NotificationResponse notification) {
+  startNotificationLoop();
   print('Callback Handler Invoked: $notification');
   print('Callback Payload: ${notification.payload}');
 }

@@ -49,7 +49,7 @@ class _CustomAppBarState extends State<CustomAppBar>
                 ),
                 Gif(
                   controller: _gifController,
-                  image: const AssetImage('assets/images/logo.gif'),
+                  image: const AssetImage('assets/images/logo6.png'),
                   height: MediaQuery.of(context).size.height * 0.09,
                   width: MediaQuery.of(context).size.width * 0.09,
                 ),

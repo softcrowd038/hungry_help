@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/services/add_post_service.dart';
@@ -22,21 +21,11 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
   bool _isLoading = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   PostService postService = PostService();
-  late GifController _gifController;
 
   @override
   void initState() {
     super.initState();
     getPosts();
-
-    _gifController = GifController(vsync: this);
-    _gifController.repeat(min: 0, max: 1, period: const Duration(seconds: 2));
-  }
-
-  @override
-  void dispose() {
-    _gifController.dispose();
-    super.dispose();
   }
 
   Future<void> getPosts() async {
@@ -86,23 +75,22 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Gif(
-                      controller: _gifController,
-                      image: const AssetImage('assets/images/logo.gif'),
-                      height: MediaQuery.of(context).size.height * 0.09,
-                      width: MediaQuery.of(context).size.width * 0.09,
+                    Image(
+                      image: const AssetImage('assets/images/logo6.png'),
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.1,
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(
-                          MediaQuery.of(context).size.height * 0.015),
-                      child: Text(
-                        'Akshay Patra',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.height * 0.025,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.height * 0.015,
+                    ),
+                    Text(
+                      'Akshay Patra',
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.022,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
                   ],

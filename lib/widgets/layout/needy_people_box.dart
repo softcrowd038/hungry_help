@@ -39,19 +39,31 @@ class _NeedyPeopleBox extends State<NeedyPeopleBox> {
             padding: EdgeInsets.only(
                 left: MediaQuery.of(context).size.height * 0.0080),
             child: Container(
-                height: MediaQuery.of(context).size.height * 0.075,
-                width: MediaQuery.of(context).size.height * 0.075,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(
-                        MediaQuery.of(context).size.height * 0.075)),
-                child: ClipRRect(
+              height: MediaQuery.of(context).size.height * 0.075,
+              width: MediaQuery.of(context).size.height * 0.075,
+              decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(
-                      MediaQuery.of(context).size.height * 0.075),
-                  child: Image.network(
-                    '$imageBaseUrl${widget.imageUrl}',
-                    fit: BoxFit.cover,
-                  ),
-                )),
+                      MediaQuery.of(context).size.height * 0.075)),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(
+                  MediaQuery.of(context).size.height * 0.075,
+                ),
+                child: Image.network(
+                  '$imageBaseUrl${widget.imageUrl}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300], // Placeholder background color
+                      child: Icon(
+                        Icons.person, // Fallback icon
+                        size: MediaQuery.of(context).size.height * 0.04,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
           Expanded(
             child: Column(

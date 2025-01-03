@@ -22,7 +22,6 @@ class AddLocationData extends StatefulWidget {
 class _AddLocationData extends State<AddLocationData> {
   final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   final TextEditingController _locationNameController = TextEditingController();
-  loc.LocationData? _currentLocation;
   String? _locationName;
   double? _latitude;
   double? _longitude;
@@ -32,49 +31,50 @@ class _AddLocationData extends State<AddLocationData> {
   final loc.Location location = loc.Location();
 
   Future<void> _getCurrentLocation() async {
+    if (_isLoadingLocation) return;
+
     setState(() {
       _isLoadingLocation = true;
     });
 
     try {
-      bool serviceEnabled = await location.serviceEnabled();
+      final serviceEnabled =
+          await location.serviceEnabled() || await location.requestService();
+
       if (!serviceEnabled) {
-        serviceEnabled = await location.requestService();
-        if (!serviceEnabled) throw 'Location services disabled';
+        throw 'Location services disabled';
       }
 
-      loc.PermissionStatus permissionGranted = await location.hasPermission();
-      if (permissionGranted == loc.PermissionStatus.denied) {
-        permissionGranted = await location.requestPermission();
-        if (permissionGranted != loc.PermissionStatus.granted) {
-          throw 'Location permission denied';
-        }
+      final permissionGranted = await location.hasPermission() ==
+              loc.PermissionStatus.granted ||
+          await location.requestPermission() == loc.PermissionStatus.granted;
+
+      if (!permissionGranted) {
+        throw 'Location permission denied';
       }
 
-      _currentLocation = await location.getLocation();
-      _latitude = _currentLocation?.latitude;
-      _longitude = _currentLocation?.longitude;
+      final currentLocation = await location.getLocation();
+      final latitude = currentLocation.latitude;
+      final longitude = currentLocation.longitude;
 
-      if (_latitude != null && _longitude != null) {
-        List<Placemark> placemarks =
-            await placemarkFromCoordinates(_latitude!, _longitude!);
+      if (latitude != null && longitude != null) {
+        final placemarks = await placemarkFromCoordinates(latitude, longitude);
 
         if (placemarks.isNotEmpty) {
-          Placemark place = placemarks[0];
-          setState(() {
-            _locationName =
-                '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
-            _locationNameController.text = _locationName!;
-          });
+          final place = placemarks.first;
+          _locationName =
+              '${place.name}, ${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}';
         } else {
-          setState(() {
-            _locationNameController.text = 'No address found';
-          });
+          _locationName = 'No address found';
         }
-      } else {
+
         setState(() {
-          _locationNameController.text = 'Coordinates unavailable';
+          _latitude = latitude;
+          _longitude = longitude;
+          _locationNameController.text = _locationName ?? '';
         });
+      } else {
+        throw 'Unable to retrieve coordinates';
       }
     } catch (e) {
       print('Error: $e');
@@ -89,34 +89,31 @@ class _AddLocationData extends State<AddLocationData> {
   }
 
   Future<void> submitDonation() async {
+    if (_isLoading) return;
+
+    if (!_globalKey.currentState!.validate()) return;
+
+    if (_locationNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location is required')),
+      );
+      return;
+    }
+
+    if (_latitude == null || _longitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Location coordinates are missing')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    if (_globalKey.currentState!.validate()) {
-      if (_locationNameController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location is required')),
-        );
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      if (_latitude == null || _longitude == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Location coordinates are missing')),
-        );
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
+    try {
       final donorDataProvider =
           Provider.of<DonorDataProvider>(context, listen: false);
-
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
       final uuid = prefs.getString('user_uuid');
@@ -129,18 +126,17 @@ class _AddLocationData extends State<AddLocationData> {
         return;
       }
 
-      final String authToken = token;
       final url = Uri.parse('$baseUrl/donormeal');
-
-      var request = http.MultipartRequest('POST', url);
-      request.fields['uuid'] = uuid!;
-      request.fields['description'] = donorDataProvider.description;
-      request.fields['current_date'] = donorDataProvider.donationDate;
-      request.fields['current_time'] = donorDataProvider.donationTime;
-      request.fields['quantity'] = donorDataProvider.quantity;
-      request.fields['location'] = _locationNameController.text;
-      request.fields['latitude'] = _latitude.toString();
-      request.fields['longitude'] = _longitude.toString();
+      final request = http.MultipartRequest('POST', url)
+        ..fields['uuid'] = uuid!
+        ..fields['description'] = donorDataProvider.description
+        ..fields['current_date'] = donorDataProvider.donationDate
+        ..fields['current_time'] = donorDataProvider.donationTime
+        ..fields['quantity'] = donorDataProvider.quantity
+        ..fields['location'] = _locationNameController.text
+        ..fields['latitude'] = _latitude.toString()
+        ..fields['longitude'] = _longitude.toString()
+        ..headers['Authorization'] = 'Bearer $token';
 
       if (donorDataProvider.imageurl != null) {
         request.files.add(await http.MultipartFile.fromPath(
@@ -149,43 +145,41 @@ class _AddLocationData extends State<AddLocationData> {
         ));
       }
 
-      request.headers['Authorization'] = 'Bearer $authToken';
+      final response = await request.send();
 
-      try {
-        var response = await request.send();
-        if (response.statusCode == 201) {
-          final responseData = await http.Response.fromStream(response);
-          final jsonResponse = json.decode(responseData.body);
-
-          print('Donation data submitted successfully: $jsonResponse');
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Donation data submitted successfully!')),
-          );
+      if (response.statusCode == 201) {
+        final responseData = await http.Response.fromStream(response);
+        final jsonResponse = json.decode(responseData.body);
+        print('Donation data submitted successfully: $jsonResponse');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Donation data submitted successfully!')),
+        );
+        if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
-        } else {
-          final responseData = await http.Response.fromStream(response);
-          final jsonResponse = json.decode(responseData.body);
-          final message =
-              jsonResponse['message'] ?? 'Failed to submit donation data';
-          print(
-              'Failed to submit donation data: ${response.statusCode} - $message');
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
         }
-      } catch (e) {
-        print('Error submitting donation data: $e');
+      } else {
+        final responseData = await http.Response.fromStream(response);
+        final jsonResponse = json.decode(responseData.body);
+        final message =
+            jsonResponse['message'] ?? 'Failed to submit donation data';
+        print('Failed: ${response.statusCode} - $message');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred: $e')),
+          SnackBar(content: Text(message)),
         );
       }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override

@@ -131,17 +131,6 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
                   children: [
                     GestureDetector(
                         onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          'Not Now',
-                          style: TextStyle(
-                              color: Colors.red,
-                              fontSize:
-                                  MediaQuery.of(context).size.height * 0.016),
-                        )),
-                    GestureDetector(
-                        onTap: () {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -151,6 +140,17 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
                           'Login',
                           style: TextStyle(
                               color: Colors.blue,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.016),
+                        )),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Not Now',
+                          style: TextStyle(
+                              color: Colors.red,
                               fontSize:
                                   MediaQuery.of(context).size.height * 0.016),
                         )),

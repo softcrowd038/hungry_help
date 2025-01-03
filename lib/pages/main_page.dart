@@ -136,13 +136,14 @@ class _MainPage extends State<MainPage> {
               Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: MediaQuery.of(context).size.height * 0.020),
-                child: Center(
+                child: Align(
+                  alignment: Alignment.center,
                   child: Text(
-                    'Enter How Much food you have to get people near you.',
+                    'Enter Donation deatils first to get location of people near you.',
                     style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height * 0.018,
                         fontWeight: FontWeight.w100,
-                        color: Colors.black.withOpacity(0.5)),
+                        color: Colors.red),
                   ),
                 ),
               ),

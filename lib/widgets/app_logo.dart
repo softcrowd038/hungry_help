@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gif/gif.dart';
 
 class AppLogo extends StatefulWidget {
   const AppLogo({super.key});
@@ -9,31 +8,42 @@ class AppLogo extends StatefulWidget {
 }
 
 class _AppLogoState extends State<AppLogo> with SingleTickerProviderStateMixin {
-  late GifController _gifController;
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-
-    _gifController = GifController(vsync: this);
-
-    _gifController.repeat(min: 0, max: 1, period: const Duration(seconds: 2));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Gif(
-        controller: _gifController,
-        image: const AssetImage(
-          'assets/images/logo.gif',
-        ),
-        height: MediaQuery.of(context).size.height * 0.450,
-        width: MediaQuery.of(context).size.width * 0.450);
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
   }
 
   @override
   void dispose() {
-    _gifController.dispose();
+    _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
+
+    return Center(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.rotate(
+            angle: _controller.value * 2 * 3.141592653589793,
+            child: child,
+          );
+        },
+        child: Image.asset(
+          'assets/images/logo6.png',
+          height: screenHeight * 0.2,
+          width: screenHeight * 0.2,
+        ),
+      ),
+    );
   }
 }
