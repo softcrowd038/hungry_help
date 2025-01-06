@@ -279,7 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundImage: profile!.userProfile.imageurl != null
                     ? NetworkImage(
                         '$imageBaseUrl${profile!.userProfile.imageurl}')
-                    : const AssetImage('assets/placeholder_avatar.png'),
+                    : const AssetImage('assets/images/placeholder_avatar.png'),
               ),
             ),
           ),

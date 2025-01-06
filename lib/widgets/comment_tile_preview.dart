@@ -98,7 +98,8 @@ class _CommentTilePreviewState extends State<CommentTilePreview> {
                   CircleAvatar(
                     backgroundImage: imageUrl != null
                         ? NetworkImage('$imageBaseUrl$imageUrl')
-                        : const AssetImage('assets/placeholder_avatar.png')
+                        : const AssetImage(
+                                'assets/images/placeholder_avatar.png')
                             as ImageProvider,
                   ),
                   const SizedBox(width: 8),

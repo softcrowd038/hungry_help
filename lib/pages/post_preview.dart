@@ -45,7 +45,6 @@ class _PostPreview extends State<PostPreview> {
           setState(() {
             userProfile = responseData['userProfile'];
           });
-          print(userProfile);
         } else {
           throw Exception('Invalid response structure: ${response.body}');
         }
@@ -146,7 +145,6 @@ class _PostPreview extends State<PostPreview> {
   @override
   Widget build(BuildContext context) {
     final postProvider = Provider.of<PostProvider>(context);
-    print(postProvider.type);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -270,10 +268,6 @@ class _PostPreview extends State<PostPreview> {
                               _getImageSize(File(postProvider.postUrl!.path)),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              final size = snapshot.data!;
-                              final aspectRatio = size.width / size.height;
-                              print('size: $size');
-                              print('aspectRatio: $aspectRatio');
                               return LayoutBuilder(
                                 builder: (context, constraints) {
                                   return Container(
@@ -324,7 +318,6 @@ class _PostPreview extends State<PostPreview> {
               ),
               GestureDetector(
                 onTap: () async {
-                  print('Post button tapped');
                   await createPost();
                 },
                 child: const ButtonWidget(

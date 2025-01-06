@@ -97,10 +97,8 @@ class _PostCardState extends State<PostCard> {
       now.second,
     );
 
-    print('currentDateTime : $currentDateTime');
-
     final Duration difference = currentDateTime.difference(postDateTime);
-    print('difference : $difference');
+
     if (difference.inDays >= 1) {
       return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
     } else if (difference.inHours >= 1) {
@@ -134,9 +132,12 @@ class _PostCardState extends State<PostCard> {
     ThemeData theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
-    if (userProvider.errorMessage != null) {
-      return Center(child: Text('Error: ${userProvider.errorMessage}'));
-    }
+    // if (userProvider.errorMessage != null) {
+    //   return Center(
+    //       child: CircularProgressIndicator(
+    //     color: theme.colorScheme.primary,
+    //   ));
+    // }
 
     final profile = userProvider.getUser(widget.uuid);
     if (profile == null) {

@@ -53,9 +53,9 @@ class _NeedyPeopleBox extends State<NeedyPeopleBox> {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
-                      color: Colors.grey[300], // Placeholder background color
+                      color: Colors.grey[300],
                       child: Icon(
-                        Icons.person, // Fallback icon
+                        Icons.person,
                         size: MediaQuery.of(context).size.height * 0.04,
                         color: Colors.grey,
                       ),

@@ -55,7 +55,7 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final postDataList = jsonDecode(response.body)['data'];
-        print(postDataList);
+
         if (postDataList != null) {
           setState(() {
             postData = postDataList;

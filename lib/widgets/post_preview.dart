@@ -67,7 +67,6 @@ class _PostCardPreviewState extends State<PostCardPreview> {
     try {
       final postService = PostService();
       postData = await postService.getPost(widget.postUuid);
-      print(postData);
     } catch (e) {
       print('Error fetching post data: $e');
     }
@@ -100,10 +99,8 @@ class _PostCardPreviewState extends State<PostCardPreview> {
       now.second,
     );
 
-    print('currentDateTime : $currentDateTime');
-
     final Duration difference = currentDateTime.difference(postDateTime);
-    print('difference : $difference');
+
     if (difference.inDays >= 1) {
       return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
     } else if (difference.inHours >= 1) {
@@ -172,7 +169,8 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                 leading: CircleAvatar(
                   backgroundImage: profile!.userProfile.imageurl != null
                       ? NetworkImage('$imageBaseUrl${userProfile.imageurl}')
-                      : const AssetImage('assets/placeholder_avatar.png'),
+                      : const AssetImage(
+                          'assets/images/placeholder_avatar.png'),
                 ),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

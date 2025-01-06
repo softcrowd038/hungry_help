@@ -27,7 +27,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
   bool _isTextVisible = false;
   bool _showInitialMessage = true;
   bool _showCurrentAddress = false;
-  late gmaps.LatLng destinationPosition;
+  late gmaps.LatLng destinationPosition = const gmaps.LatLng(0.0, 0.0);
   bool showDeliveryDoneButton = false;
   Set<gmaps.Marker> _markers = {};
   Set<gmaps.Polyline> _polylines = {};
@@ -182,7 +182,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                       destinationPosition.longitude,
                     );
 
-                    if (distance < 60) {
+                    if (distance < 150) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         if (!showDeliveryDoneButton) {
                           setState(() {

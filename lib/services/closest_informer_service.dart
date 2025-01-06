@@ -101,7 +101,6 @@ class ClosestInformerService {
 
         if (responseData is Map<String, dynamic> &&
             responseData['data'] != null) {
-          print(responseData['data']);
           return responseData['data'];
         } else if (responseData is List) {
           return responseData;

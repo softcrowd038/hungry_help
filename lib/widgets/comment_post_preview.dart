@@ -55,7 +55,7 @@ class _CommentsPostPreviewState extends State<CommentsPostPreview> {
         final data = jsonDecode(response.body);
         if (data['success'] == true && data['data'] is List) {
           List<dynamic> commentData = data['data'];
-          print(commentData);
+
           setState(() {
             _comments =
                 commentData.map<String>((item) => item['comment']).toList();
@@ -65,7 +65,6 @@ class _CommentsPostPreviewState extends State<CommentsPostPreview> {
             _uuid =
                 commentData.map<String>((item) => item['user_uuid']).toList();
           });
-          print(_comments);
         } else {
           throw Exception('Invalid response structure or missing data.');
         }

@@ -89,7 +89,7 @@ class _CommentTileState extends State<CommentTile> {
           CircleAvatar(
             backgroundImage: imageUrl != null
                 ? NetworkImage('$imageBaseUrl$imageUrl')
-                : const AssetImage('assets/placeholder_avatar.png'),
+                : const AssetImage('assets/images/placeholder_avatar.png'),
           ),
           const SizedBox(width: 8),
           Flexible(
