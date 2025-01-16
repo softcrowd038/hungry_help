@@ -22,7 +22,6 @@ class ButtonWidget extends StatefulWidget {
 class _ButonWidget extends State<ButtonWidget> {
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Padding(
       padding: EdgeInsets.all(MediaQuery.of(context).size.height * 0.012),
       child: GestureDetector(
@@ -30,7 +29,7 @@ class _ButonWidget extends State<ButtonWidget> {
           height: MediaQuery.of(context).size.height * widget.height,
           width: MediaQuery.of(context).size.width * widget.width,
           decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
+              color: Colors.orange,
               borderRadius: BorderRadius.circular(
                   MediaQuery.of(context).size.height * widget.borderRadius)),
           child: Center(

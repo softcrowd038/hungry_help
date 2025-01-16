@@ -114,7 +114,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     TextEditingController controller = TextEditingController();
 
     return Container(
-      color: theme.colorScheme.secondaryContainer,
+      color: Colors.orange.shade200,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Row(

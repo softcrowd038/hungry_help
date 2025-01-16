@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_social/common/common.dart';
 import 'package:quick_social/models/models.dart';
-import 'package:quick_social/pages/pages.dart';
 import 'package:quick_social/widgets/widgets.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -44,7 +43,6 @@ class ProfilePage extends StatelessWidget {
   }
 
   AppBar _appBar(BuildContext context) {
-    final theme = Theme.of(context);
     return AppBar(
       forceMaterialTransparency: true,
       automaticallyImplyLeading: false,
@@ -59,8 +57,7 @@ class ProfilePage extends StatelessWidget {
                     ? IconButton.filledTonal(
                         onPressed: () => context.pop(),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              theme.colorScheme.primary.withAlpha(75),
+                          backgroundColor: Colors.orange.withAlpha(75),
                         ),
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
@@ -71,7 +68,7 @@ class ProfilePage extends StatelessWidget {
                 IconButton.filledTonal(
                   onPressed: () {},
                   style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary.withAlpha(75),
+                    backgroundColor: Colors.orange.withAlpha(75),
                   ),
                   icon: Icon(
                     user.isMe ? Icons.settings : Icons.more_vert,

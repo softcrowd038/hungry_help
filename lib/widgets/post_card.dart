@@ -249,12 +249,11 @@ class _ToggleButtonState extends State<_ToggleButton>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final theme = Theme.of(context);
 
     return PostButton(
       icon: Icon(
         _isActive ? widget.activeIconData : widget.iconData,
-        color: _isActive ? theme.colorScheme.primary : null,
+        color: _isActive ? Colors.orange : null,
       ),
       text: _count.toString(),
       onTap: () {

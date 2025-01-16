@@ -69,6 +69,7 @@ class _HomePageState extends State<HomePage> {
   NavigationRail _navigationRail(BuildContext context) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+
     return NavigationRail(
       selectedIndex: _pageIndex,
       onDestinationSelected: _pageChanged,
@@ -77,34 +78,35 @@ class _HomePageState extends State<HomePage> {
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
       selectedLabelTextStyle: textTheme.bodyMedium?.copyWith(
-        color: theme.colorScheme.primary,
+        color: Colors.orange,
         fontWeight: FontWeight.bold,
       ),
       unselectedLabelTextStyle: textTheme.bodyMedium,
       destinations: [
         NavigationRailDestination(
           icon: const Icon(Icons.home_outlined),
-          selectedIcon: Icon(
+          selectedIcon: const Icon(
             Icons.home,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
+          indicatorColor: Colors.orange.shade200,
           label: const Text('Home'),
         ),
-        NavigationRailDestination(
-          icon: const Icon(Icons.explore),
+        const NavigationRailDestination(
+          icon: Icon(Icons.explore),
           selectedIcon: Icon(
             Icons.explore,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
-          label: const Text('Home'),
+          label: Text('Home'),
         ),
-        NavigationRailDestination(
-          icon: const Icon(Icons.person_outlined),
+        const NavigationRailDestination(
+          icon: Icon(Icons.person_outlined),
           selectedIcon: Icon(
             Icons.person,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
-          label: const Text('Profile'),
+          label: Text('Profile'),
         ),
       ],
     );
@@ -112,34 +114,35 @@ class _HomePageState extends State<HomePage> {
 
   /// mobile screen
   NavigationBar _navigationBar(BuildContext context) {
-    final theme = Theme.of(context);
     return NavigationBar(
+      backgroundColor: Colors.orange.shade200,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: _pageIndex,
       height: MediaQuery.of(context).size.height * 0.065,
       onDestinationSelected: _pageChanged,
-      destinations: [
+      indicatorColor: Colors.orange.shade200,
+      destinations: const [
         NavigationDestination(
-          icon: const Icon(Icons.home_outlined),
+          icon: Icon(Icons.home_outlined),
           selectedIcon: Icon(
             Icons.home,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Home',
         ),
         NavigationDestination(
-          icon: const Icon(Icons.explore),
+          icon: Icon(Icons.explore),
           selectedIcon: Icon(
             Icons.explore,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Add',
         ),
         NavigationDestination(
-          icon: const Icon(Icons.person_outlined),
+          icon: Icon(Icons.person_outlined),
           selectedIcon: Icon(
             Icons.person,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Profile',
         ),

@@ -26,14 +26,13 @@ class _ProfileDataPage extends State<ProfileDataPage> {
   XFile? _profilePic;
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    _profilePic = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    _profilePic = await picker.pickImage(source: ImageSource.gallery);
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -65,8 +64,7 @@ class _ProfileDataPage extends State<ProfileDataPage> {
                   ),
                   ElevatedButton(
                     style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(theme.colorScheme.primary),
+                      backgroundColor: WidgetStateProperty.all(Colors.orange),
                     ),
                     onPressed: () {},
                     child: const Text(

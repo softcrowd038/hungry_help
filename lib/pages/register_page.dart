@@ -29,7 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image(
-                  image: const AssetImage('assets/images/registration.jpg'),
+                  image: const AssetImage('assets/images/registered.jpg'),
                   height: MediaQuery.of(context).size.height * 0.400,
                   width: MediaQuery.of(context).size.height * 0.400,
                 ),

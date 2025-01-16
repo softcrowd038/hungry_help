@@ -77,12 +77,10 @@ class _CommentLikeButtonState extends State<_CommentLikeButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return PostButton(
       icon: Icon(
         _isLiked ? Icons.favorite : Icons.favorite_outline,
-        color: _isLiked ? theme.colorScheme.primary : null,
+        color: _isLiked ? Colors.orange : null,
         size: 18,
       ),
       padding: const EdgeInsets.only(top: 2, right: 2, bottom: 2),

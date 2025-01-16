@@ -13,8 +13,6 @@ class UserStoryAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -23,6 +21,7 @@ class UserStoryAvatar extends StatelessWidget {
           child: const CircularProgressIndicator(
             value: 1,
             strokeWidth: 2,
+            color: Colors.orange,
           ),
         ),
         CircleAvatar(
@@ -33,7 +32,7 @@ class UserStoryAvatar extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              splashColor: theme.colorScheme.primary.withAlpha(50),
+              splashColor: Colors.orange.withAlpha(50),
               borderRadius: BorderRadius.circular(100),
               onTap: onTap,
             ),

@@ -19,7 +19,6 @@ class _MainPage extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     AppData appData = AppData();
-    ThemeData theme = Theme.of(context);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -32,11 +31,11 @@ class _MainPage extends State<MainPage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+                color: Colors.orange,
               ),
-              child: const Text(
+              child: Text(
                 'Menu',
                 style: TextStyle(
                   color: Colors.white,

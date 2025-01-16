@@ -16,7 +16,6 @@ class _FeedPageState extends State<FeedPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
@@ -28,8 +27,8 @@ class _FeedPageState extends State<FeedPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+              decoration: const BoxDecoration(
+                color: Colors.orange,
               ),
               child: Text(
                 'Menu',

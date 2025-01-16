@@ -32,10 +32,9 @@ class _CustomAppBarState extends State<CustomAppBar>
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
     return AppBar(
       automaticallyImplyLeading: false,
+      backgroundColor: Colors.orange.shade200,
       flexibleSpace: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -44,7 +43,7 @@ class _CustomAppBarState extends State<CustomAppBar>
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IconButton(
-                  icon: Icon(Icons.menu, color: theme.colorScheme.primary),
+                  icon: const Icon(Icons.menu, color: Colors.black),
                   onPressed: widget.onPressed,
                 ),
                 Gif(
@@ -61,7 +60,7 @@ class _CustomAppBarState extends State<CustomAppBar>
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.height * 0.025,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                      color: Colors.orange,
                     ),
                   ),
                 ),

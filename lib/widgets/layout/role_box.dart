@@ -28,12 +28,12 @@ class _RoleBox extends State<RoleBox> {
         width: MediaQuery.of(context).size.height * widget.width,
         decoration: BoxDecoration(
             color: Colors.white,
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                  offset: const Offset(1, 1),
+                  offset: Offset(1, 1),
                   blurRadius: 3,
                   spreadRadius: 2,
-                  color: Colors.black.withOpacity(0.3))
+                  color: Colors.black12)
             ],
             borderRadius: BorderRadius.circular(
                 MediaQuery.of(context).size.height * 0.015)),
