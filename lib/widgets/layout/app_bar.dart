@@ -34,7 +34,7 @@ class _CustomAppBarState extends State<CustomAppBar>
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Colors.orange.shade200,
+      backgroundColor: const Color.fromARGB(255, 255, 244, 226),
       flexibleSpace: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,7 +56,7 @@ class _CustomAppBarState extends State<CustomAppBar>
                   padding: EdgeInsets.all(
                       MediaQuery.of(context).size.height * 0.015),
                   child: Text(
-                    'Akshay Patra',
+                    'Hungry Help',
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.height * 0.025,
                       fontWeight: FontWeight.bold,

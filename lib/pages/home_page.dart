@@ -115,12 +115,12 @@ class _HomePageState extends State<HomePage> {
   /// mobile screen
   NavigationBar _navigationBar(BuildContext context) {
     return NavigationBar(
-      backgroundColor: Colors.orange.shade200,
+      backgroundColor: const Color.fromARGB(255, 255, 244, 226),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: _pageIndex,
       height: MediaQuery.of(context).size.height * 0.065,
       onDestinationSelected: _pageChanged,
-      indicatorColor: Colors.orange.shade200,
+      indicatorColor: Colors.orange.shade100,
       destinations: const [
         NavigationDestination(
           icon: Icon(Icons.home_outlined),

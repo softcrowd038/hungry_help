@@ -6,7 +6,7 @@ class LoadingImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.orange.shade100,
+      color: const Color.fromARGB(255, 255, 244, 226),
       child: const Center(
         child: CircularProgressIndicator(
           color: Colors.orange,
