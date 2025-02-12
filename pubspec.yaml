@@ -37,7 +37,7 @@ dependencies:
   gif:
   image_picker:
   photo_manager:
-  camera:
+  camera: ^0.10.6
   location:
   geocoding:
   image_capture_field:

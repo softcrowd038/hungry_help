@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
             Icons.explore,
             color: theme.colorScheme.primary,
           ),
-          label: const Text('Home'),
+          label: const Text('Explore'),
         ),
         NavigationRailDestination(
           icon: const Icon(Icons.person_outlined),

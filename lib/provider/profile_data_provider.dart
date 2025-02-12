@@ -75,29 +75,4 @@ class UserProfileProvider with ChangeNotifier {
     _status = value;
     notifyListeners();
   }
-
-  void updateProfile({
-    required String uuid,
-    required File? imageUrl,
-    required String username,
-    required String firstname,
-    required String lastname,
-    required String location,
-    required double latitude,
-    required double longitude,
-    required String birthdate,
-    required String status,
-  }) {
-    _uuid = uuid;
-    _imageUrl = imageUrl;
-    _username = username;
-    _firstname = firstname;
-    _lastname = lastname;
-    _location = location;
-    _latitude = latitude;
-    _longitude = longitude;
-    _birthdate = birthdate;
-    _status = status;
-    notifyListeners();
-  }
 }

@@ -1,10 +1,11 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:giffy_dialog/giffy_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/provider/follow_status.dart';
 import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/services/add_post_service.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
@@ -13,13 +14,11 @@ class PostCardLoginPreview extends StatefulWidget {
   final String uuid;
   final String postUuid;
   final int initialCount;
-
-  const PostCardLoginPreview({
-    super.key,
-    required this.uuid,
-    required this.postUuid,
-    required this.initialCount,
-  });
+  const PostCardLoginPreview(
+      {super.key,
+      required this.uuid,
+      required this.postUuid,
+      required this.initialCount});
 
   @override
   State<PostCardLoginPreview> createState() => _PostCardLoginPreviewState();
@@ -27,125 +26,149 @@ class PostCardLoginPreview extends StatefulWidget {
 
 class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
   List<dynamic> postData = [];
+  List<String> uuids = [];
   bool isLoading = true;
+  String? status;
 
-  final postService = PostService();
+  late FollowStatusProvider followStatusProvider;
 
   @override
   void initState() {
     super.initState();
     _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    await Future.wait([
-      _fetchUserProfile(),
-      _fetchPostData(),
-    ]);
     setState(() {
       isLoading = false;
     });
   }
 
-  Future<void> _fetchUserProfile() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    await userProvider.fetchUserProfile(widget.uuid);
+  Future<void> _initializeData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.fetchUserProfile(widget.uuid);
+    });
+    await _fetchPostData();
   }
+
+  final postService = PostService();
 
   Future<void> _fetchPostData() async {
     try {
+      final postService = PostService();
       postData = await postService.getPost(widget.postUuid);
     } catch (e) {
-      debugPrint('Error fetching post data: $e');
+      print('Error fetching post data: $e');
     }
   }
 
   String getTimeDifference(String postDate, String postTime) {
-    try {
-      final DateTime postDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(
-        '$postDate $postTime',
-      );
-      final Duration difference = DateTime.now().difference(postDateTime);
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final DateFormat timeFormat = DateFormat('HH:mm:ss');
 
-      if (difference.inDays >= 1) {
-        return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
-      } else if (difference.inHours >= 1) {
-        return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
-      } else if (difference.inMinutes >= 1) {
-        return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
-      } else {
-        return 'Just now';
-      }
-    } catch (e) {
-      debugPrint('Error calculating time difference: $e');
-      return 'Unknown';
+    DateTime postDateParsed =
+        dateFormat.parse('${DateTime.parse(postDate).toLocal()}');
+    DateTime postTimeParsed = timeFormat.parse(postTime);
+
+    DateTime postDateTime = DateTime(
+      postDateParsed.year,
+      postDateParsed.month,
+      postDateParsed.day,
+      postTimeParsed.hour,
+      postTimeParsed.minute,
+      postTimeParsed.second,
+    );
+
+    DateTime now = DateTime.now();
+    DateTime currentDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+
+    final Duration difference = currentDateTime.difference(postDateTime);
+
+    if (difference.inDays >= 1) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    } else {
+      return 'Just now';
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   void _showLoginDialog(BuildContext context, String title, String message) {
     showDialog(
-      context: context,
-      builder: (_) => GiffyDialog(
-        giffy: Image.network(
-          'https://cdn.dribbble.com/users/1939393/screenshots/6392286/dribbble-404-error.gif',
-        ),
-        title: Text(
-          title,
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.height * 0.022,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        entryAnimation: EntryAnimation.bottom,
-        content: Text(
-          message,
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.height * 0.018,
-          ),
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
-                },
-                child: Text(
-                  'Login',
+        context: context,
+        builder: (_) => GiffyDialog(
+              giffy: Image.network(
+                  'https://cdn.dribbble.com/users/1939393/screenshots/6392286/dribbble-404-error.gif'),
+              title: Text(title,
+                  textAlign: TextAlign.start,
                   style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: MediaQuery.of(context).size.height * 0.016,
-                  ),
-                ),
+                      fontSize: MediaQuery.of(context).size.height * 0.022,
+                      fontWeight: FontWeight.w600)),
+              entryAnimation: EntryAnimation.bottom,
+              content: Text(
+                message,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.height * 0.018),
               ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Text(
-                  'Not Now',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: MediaQuery.of(context).size.height * 0.016,
-                  ),
-                ),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()));
+                        },
+                        child: Text(
+                          'Login',
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.016),
+                        )),
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Not Now',
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.016),
+                        )),
+                  ],
+                )
+              ],
+            ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : _mobileCard(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _mobileCard(context);
+      },
+    );
   }
 
   Widget _mobileCard(BuildContext context) {
