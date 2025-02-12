@@ -1,270 +1,367 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously, unnecessary_null_comparison
 import 'package:flutter/material.dart';
-import 'package:quick_social/common/common.dart';
-import 'package:quick_social/models/models.dart';
-import 'package:quick_social/pages/pages.dart';
-import 'package:quick_social/widgets/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/provider/follow_status.dart';
+import 'package:quick_social/provider/like_status_provider.dart';
+import 'package:quick_social/provider/user_provider.dart';
+import 'package:quick_social/services/add_post_service.dart';
+import 'package:quick_social/widgets/comments_bottom_sheet.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 
-class PostCard extends StatelessWidget {
-  const PostCard({
-    super.key,
-    required this.post,
-  });
+class PostCard extends StatefulWidget {
+  final String uuid;
+  final String postUuid;
+  final int initialCount;
+  const PostCard(
+      {super.key,
+      required this.uuid,
+      required this.postUuid,
+      required this.initialCount});
 
-  final Post post;
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  List<dynamic> postData = [];
+  List<String> uuids = [];
+  bool isLoading = true;
+  String? status;
+
+  late FollowStatusProvider followStatusProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _initializeData() async {
+    postService.postFollowStatus(context, widget.uuid);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      followStatusProvider =
+          Provider.of<FollowStatusProvider>(context, listen: false);
+      followStatusProvider.getFollowerInitialCount(context, widget.uuid);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.fetchUserProfile(widget.uuid);
+      final likeStatusProvider =
+          Provider.of<LikeStatusProvider>(context, listen: false);
+      likeStatusProvider.fetchLikeStatus(widget.postUuid);
+      likeStatusProvider.getTotalLikes(widget.postUuid);
+    });
+
+    postService.postLikeStatus(context, widget.postUuid);
+    await _fetchPostData();
+  }
+
+  final postService = PostService();
+
+  Future<void> _fetchPostData() async {
+    try {
+      final postService = PostService();
+      postData = await postService.getPost(widget.postUuid);
+    } catch (e) {
+      print('Error fetching post data: $e');
+    }
+  }
+
+  String getTimeDifference(String postDate, String postTime) {
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+    final DateFormat timeFormat = DateFormat('HH:mm:ss');
+
+    DateTime postDateParsed =
+        dateFormat.parse('${DateTime.parse(postDate).toLocal()}');
+    DateTime postTimeParsed = timeFormat.parse(postTime);
+
+    DateTime postDateTime = DateTime(
+      postDateParsed.year,
+      postDateParsed.month,
+      postDateParsed.day,
+      postTimeParsed.hour,
+      postTimeParsed.minute,
+      postTimeParsed.second,
+    );
+
+    DateTime now = DateTime.now();
+    DateTime currentDateTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+
+    final Duration difference = currentDateTime.difference(postDateTime);
+
+    if (difference.inDays >= 1) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else if (difference.inHours >= 1) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inMinutes >= 1) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final mobileCard = _mobileCard(context);
-    final tabletCard = _tabletCard(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: context.responsive<Widget>(
-        sm: mobileCard,
-        md: tabletCard,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return isLoading
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : _mobileCard(context);
+      },
     );
   }
 
   Widget _mobileCard(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListTile(
-          onTap: () => context.push(route: ProfilePage.route(post.owner)),
-          leading: CircleAvatar(
-            backgroundImage: NetworkImage(post.owner.profileImage),
-          ),
-          title: Text(
-            post.owner.username,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            post.location,
-            style: textTheme.bodySmall,
-          ),
-          trailing: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert),
-          ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Text(post.caption),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: _postImage(),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: _postButtons(),
-        ),
-      ],
-    );
-  }
+    final userProvider = Provider.of<UserProvider>(context);
 
-  Widget _tabletCard(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: IntrinsicHeight(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    // if (userProvider.errorMessage != null) {
+    //   return Center(
+    //       child: CircularProgressIndicator(
+    //     color: Colors.orange,
+    //   ));
+    // }
+
+    final profile = userProvider.getUser(widget.uuid);
+    if (profile == null) {
+      return const Center(child: Text(''));
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: postData.length,
+      itemBuilder: (context, index) {
+        final post = postData[index];
+        bool isLoading = userProvider.isLoading || postData.isEmpty;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: _postImage(),
+            ListTile(
+              leading: CircleAvatar(
+                backgroundImage: profile.userProfile.imageurl != null
+                    ? NetworkImage(
+                        '$imageBaseUrl${profile.userProfile.imageurl}',
+                      )
+                    : null,
+                child: profile.userProfile.imageurl == null
+                    ? const Icon(Icons.person)
+                    : null,
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          onTap: () {
-                            context.push(route: ProfilePage.route(post.owner));
-                          },
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                NetworkImage(post.owner.profileImage),
-                          ),
-                          title: Text(
-                            post.owner.username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          subtitle: Text(
-                            post.location,
-                            style: textTheme.bodySmall?.copyWith(
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: Text(post.caption),
-                        ),
-                      ],
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    profile.userProfile.username ?? 'Loading...',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    getTimeDifference(post['post_date'], post['post_time']),
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.014),
+                  ),
+                ],
+              ),
+              trailing: Consumer<FollowStatusProvider>(
+                  builder: (context, followStatusProvider, child) {
+                final isFollowing =
+                    followStatusProvider.isFollowing(widget.uuid);
+                return TextButton(
+                  onPressed: () {
+                    followStatusProvider.toggleFollowStatus(
+                        context, widget.uuid);
+                  },
+                  child: Text(
+                    followStatusProvider.isFollowing != null
+                        ? (isFollowing ? 'Unfollow' : 'Follow')
+                        : 'Loading...',
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 0, 140, 255),
+                      fontWeight: FontWeight.bold,
                     ),
-                    _postButtons(),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              }),
             ),
+            if (!isLoading) ...[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.015,
+                        left: MediaQuery.of(context).size.height * 0.015,
+                        right: MediaQuery.of(context).size.height * 0.015),
+                    child: isLoading
+                        ? Shimmer(
+                            duration: const Duration(seconds: 2),
+                            child: Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.018,
+                              width: MediaQuery.of(context).size.width * 0.20,
+                              color: Colors.grey,
+                            ))
+                        : Text(
+                            post['title'],
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height * 0.018,
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).size.height * 0.015,
+                        left: MediaQuery.of(context).size.height * 0.015,
+                        right: MediaQuery.of(context).size.height * 0.015),
+                    child: isLoading
+                        ? Shimmer(
+                            duration: const Duration(seconds: 2),
+                            child: Container(
+                              height:
+                                  MediaQuery.of(context).size.height * 0.015,
+                              width: MediaQuery.of(context).size.width * 0.30,
+                              color: Colors.grey,
+                            ))
+                        : Text(
+                            post['description'],
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.height * 0.015,
+                                color: Colors.grey),
+                          ),
+                  ),
+                  AspectRatio(
+                    aspectRatio: 1 / 1,
+                    child: isLoading
+                        ? Padding(
+                            padding: EdgeInsets.all(
+                                MediaQuery.of(context).size.height * 0.015),
+                            child: Shimmer(
+                              duration: const Duration(seconds: 2),
+                              child: Container(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal:
+                                    MediaQuery.of(context).size.height * 0.015),
+                            child: Image.network(
+                              '$imageBaseUrl${post['post_url']}',
+                              fit: BoxFit.cover,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return AspectRatio(
+                                  aspectRatio: 1 / 1,
+                                  child: Shimmer(
+                                    duration: const Duration(seconds: 2),
+                                    child: Container(
+                                      color: const Color.fromARGB(
+                                          255, 196, 196, 196),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return const AspectRatio(
+                                  aspectRatio: 1 / 1,
+                                  child: Icon(Icons.error),
+                                );
+                              },
+                            ),
+                          ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Consumer<LikeStatusProvider>(
+                          builder: (context, likeStatusProvider, child) {
+                        final isLiked =
+                            likeStatusProvider.isLiked(widget.postUuid);
+                        final count =
+                            likeStatusProvider.totalLikes(widget.postUuid);
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isLiked ? Colors.orange : Colors.black,
+                              ),
+                              onPressed: () {
+                                likeStatusProvider.toggleLikeStatus(
+                                    context, widget.postUuid);
+                              },
+                            ),
+                            Text(
+                              '$count',
+                              style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.height *
+                                      0.014,
+                                  color: Colors.grey),
+                            ),
+                          ],
+                        );
+                      }),
+                      IconButton(
+                        icon: const Icon(Icons.comment),
+                        onPressed: () {
+                          showCommentsBottomSheet(context);
+                        },
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.height * 0.016,
+                    ),
+                    child: Divider(
+                        height: MediaQuery.of(context).size.height * 0.004),
+                  )
+                ],
+              ),
+            ],
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _postImage() {
-    return Image.network(
-      post.postImage,
-      fit: BoxFit.fitWidth,
-      loadingBuilder: (ctx, child, progress) {
-        if (progress == null) return child;
-        return const AspectRatio(
-          aspectRatio: 16 / 9,
-          child: LoadingImageWidget(),
-        );
-      },
-      errorBuilder: (ctx, _, __) {
-        return const AspectRatio(
-          aspectRatio: 16 / 9,
-          child: ErrorImageWidget(),
         );
       },
     );
   }
 
-  Widget _postButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          child: _ToggleButton(
-            isActive: post.isLiked,
-            count: post.likeCount,
-            iconData: Icons.favorite_outline,
-            activeIconData: Icons.favorite,
-          ),
+  Future<void> showCommentsBottomSheet(BuildContext context) async {
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      return await showModalBottomSheet(
+        context: context,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        Expanded(
-          child: _CommentButton(post: post),
-        ),
-        Expanded(
-          child: _ToggleButton(
-            isActive: post.isSaved,
-            count: post.saveCount,
-            iconData: Icons.bookmark_add_outlined,
-            activeIconData: Icons.bookmark_added,
-          ),
-        ),
-      ],
-    );
+        enableDrag: true,
+        isScrollControlled: true,
+        builder: (_) => CommentsBottomSheet(postUuid: widget.postUuid),
+      );
+    }
   }
-}
-
-class _CommentButton extends StatefulWidget {
-  const _CommentButton({required this.post});
-
-  final Post post;
-
-  @override
-  State<_CommentButton> createState() => _CommentButtonState();
-}
-
-class _CommentButtonState extends State<_CommentButton> {
-  late int _commentCount;
-
-  @override
-  void initState() {
-    super.initState();
-    _commentCount = widget.post.comments.length;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PostButton(
-      icon: const Icon(Icons.chat_bubble_outline),
-      text: _commentCount.toString(),
-      onTap: () => CommentsBottomSheet.showCommentsBottomSheet(
-        context,
-        post: widget.post,
-      ).then((_) {
-        // update comment count
-        setState(() => _commentCount = widget.post.comments.length);
-      }),
-    );
-  }
-}
-
-/// Like and Save button
-class _ToggleButton extends StatefulWidget {
-  const _ToggleButton({
-    this.count = 122,
-    required this.iconData,
-    required this.activeIconData,
-    required this.isActive,
-  });
-
-  final IconData iconData;
-  final IconData activeIconData;
-  final int count;
-  final bool isActive;
-
-  @override
-  State<_ToggleButton> createState() => _ToggleButtonState();
-}
-
-class _ToggleButtonState extends State<_ToggleButton>
-    with AutomaticKeepAliveClientMixin {
-  late bool _isActive;
-  late int _count;
-
-  @override
-  void initState() {
-    super.initState();
-    _count = widget.count;
-    _isActive = widget.isActive;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    return PostButton(
-      icon: Icon(
-        _isActive ? widget.activeIconData : widget.iconData,
-        color: _isActive ? Colors.orange : null,
-      ),
-      text: _count.toString(),
-      onTap: () {
-        setState(() {
-          _isActive = !_isActive;
-          _isActive ? _count++ : _count--;
-        });
-      },
-    );
-  }
-
-  @override
-  bool get wantKeepAlive => true;
 }

@@ -1,10 +1,14 @@
+// ignore_for_file: use_build_context_synchronously, avoid_print
 import 'package:flutter/material.dart';
-import 'package:quick_social/data/app_data.dart';
+import 'package:quick_social/pages/add_meal_page.dart';
 import 'package:quick_social/pages/home_page.dart';
-import 'package:quick_social/pages/notifications_page.dart';
+import 'package:quick_social/pages/informer_capture_image.dart';
+import 'package:quick_social/pages/login_page.dart';
+import 'package:quick_social/services/closest_informer_service.dart';
 import 'package:quick_social/widgets/layout/app_bar.dart';
 import 'package:quick_social/widgets/layout/needy_people_box.dart';
 import 'package:quick_social/widgets/layout/role_box.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,14 +19,65 @@ class MainPage extends StatefulWidget {
 
 class _MainPage extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<dynamic> data = [];
+  List<dynamic> informerData = [];
+  final ClosestInformerService _service = ClosestInformerService();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchInformerData();
+    postData();
+    fetchData();
+  }
+
+  Future<void> postData() async {
+    try {
+      await _service.postClosestLocationData();
+    } catch (e) {
+      throw Exception('Error, $e');
+    }
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final closestData = await _service.getClosestLocation();
+      setState(() {
+        data = closestData;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> fetchInformerData() async {
+    try {
+      final informerDataAll = await _service.getAllInformers();
+      setState(() {
+        informerData = informerDataAll;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('auth_token');
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    AppData appData = AppData();
-
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: Colors.white,
+      key: _scaffoldKey,
       appBar: CustomAppBar(
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
@@ -52,30 +107,10 @@ class _MainPage extends State<MainPage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.notifications_none),
-              title: const Text('Notifications'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const NotificationsPage()));
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pop(context);
+                _logout(context);
               },
             ),
           ],
@@ -96,22 +131,52 @@ class _MainPage extends State<MainPage> {
                   ),
                 ),
               ),
-              const Row(
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.height * 0.020),
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Enter Donation deatils first to get location of people near you.',
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.height * 0.018,
+                        fontWeight: FontWeight.w100,
+                        color: Colors.red),
+                  ),
+                ),
+              ),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  RoleBox(
-                    height: 0.15,
-                    width: 0.15,
-                    icon: Icons.handshake,
-                    text: 'Donor',
-                    textFontSize: 0.018,
-                  ),
-                  RoleBox(
-                    height: 0.15,
-                    width: 0.15,
-                    icon: Icons.info,
-                    text: 'Informer',
-                    textFontSize: 0.018,
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            (context),
+                            MaterialPageRoute(
+                                builder: (context) => const AddMealPage()));
+                      },
+                      child: const RoleBox(
+                        height: 0.15,
+                        width: 0.15,
+                        icon: Icons.food_bank,
+                        text: 'Donor',
+                        textFontSize: 0.018,
+                      )),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          (context),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const InformerCaptureImage()));
+                    },
+                    child: const RoleBox(
+                      height: 0.15,
+                      width: 0.15,
+                      icon: Icons.remove_red_eye,
+                      text: 'Informer',
+                      textFontSize: 0.018,
+                    ),
                   ),
                 ],
               ),
@@ -126,18 +191,31 @@ class _MainPage extends State<MainPage> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: appData.addresses.length,
-                  itemBuilder: (context, index) {
-                    return NeedyPeopleBox(
-                      text: appData.addresses[index],
-                      icon: Icons.place,
-                      textFontSize: 0.018,
-                      height: 0.10,
-                      width: 1,
-                    );
-                  },
-                ),
+                child: data.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          final item = data[index];
+                          return NeedyPeopleBox(
+                            text: item['location'] ?? 'Location not available',
+                            icon: Icons.place,
+                            textFontSize: 0.018,
+                            height: 0.10,
+                            width: 1,
+                            informerUUID: item['closest_uuid'] ??
+                                'Informer UUID is not available',
+                            distance:
+                                item['distance'] ?? 'no distance available',
+                            imageUrl: item['imageurl'] ?? 'no url found',
+                          );
+                        },
+                      )
+                    : const Center(
+                        child: Text(
+                          'No nearby locations found',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
               ),
             ],
           ),

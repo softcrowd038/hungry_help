@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:quick_social/common/common.dart';
 import 'package:quick_social/models/models.dart';
@@ -31,6 +33,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       body: context.responsive(
         sm: pageView,
         md: Row(
@@ -112,10 +115,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// mobile screen
   NavigationBar _navigationBar(BuildContext context) {
     return NavigationBar(
-      backgroundColor: const Color.fromARGB(255, 255, 244, 226),
+      backgroundColor: Colors.orange.shade100.withOpacity(0.1),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       selectedIndex: _pageIndex,
       height: MediaQuery.of(context).size.height * 0.065,

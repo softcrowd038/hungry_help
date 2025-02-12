@@ -21,7 +21,6 @@ class UserStoryAvatar extends StatelessWidget {
           child: const CircularProgressIndicator(
             value: 1,
             strokeWidth: 2,
-            color: Colors.orange,
           ),
         ),
         CircleAvatar(

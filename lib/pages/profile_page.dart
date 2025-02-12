@@ -8,9 +8,10 @@ import 'package:quick_social/models/models.dart';
 import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/update_profile.dart';
 import 'package:quick_social/provider/user_provider.dart';
+import 'package:quick_social/services/followers_service.dart';
 import 'package:quick_social/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({
@@ -37,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> profileData = {};
   int? followers;
   int? following;
+  FollowersService followersService = FollowersService();
   UserAccount? profile;
   bool isLoading = true;
 
@@ -75,11 +77,53 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     }
+
+    await getStats();
+    await getFollowingStats();
+  }
+
+  Future<void> getStats() async {
+    try {
+      final stats = await followersService.getFollowersCount();
+
+      if (!mounted) return;
+
+      setState(() {
+        followers = stats['total_followers'];
+      });
+    } catch (e) {
+      print('Error fetching followers stats: $e');
+      if (mounted) {
+        setState(() {
+          followers = 0;
+        });
+      }
+    }
+  }
+
+  Future<void> getFollowingStats() async {
+    try {
+      final stats = await followersService.getFollowingCount();
+
+      if (!mounted) return;
+
+      setState(() {
+        following = stats['total_following'];
+      });
+    } catch (e) {
+      print('Error fetching following stats: $e');
+      if (mounted) {
+        setState(() {
+          following = 0;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: _appBar(context),
       body: ResponsivePadding(
@@ -89,6 +133,8 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             _bannerAndProfilePicture(context),
             _userBio(context),
+            if (profile != null)
+              UserPostsTabView(uuid: profileData['uuid'] ?? ''),
           ],
         ),
       ),
@@ -96,7 +142,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   AppBar _appBar(BuildContext context) {
-    final theme = Theme.of(context);
     return AppBar(
       forceMaterialTransparency: true,
       automaticallyImplyLeading: false,
@@ -111,8 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? IconButton.filledTonal(
                         onPressed: () => context.pop(),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              theme.colorScheme.primary.withAlpha(75),
+                          backgroundColor: Colors.orange.withAlpha(75),
                         ),
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
@@ -128,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             builder: (context) => const ProfileUpdatePage()));
                   },
                   style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary.withAlpha(75),
+                    backgroundColor: Colors.orange.withAlpha(75),
                   ),
                   icon: Icon(
                     widget.user.isMe ? Icons.edit : Icons.more_vert,
@@ -183,10 +227,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             )
                           : Shimmer(
-                              gradient: const LinearGradient(colors: [
-                                Colors.grey,
-                                Color.fromARGB(255, 184, 184, 184)
-                              ]),
                               child: Container(
                                 width: 30,
                                 height: 20,
@@ -208,10 +248,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             )
                           : Shimmer(
-                              gradient: const LinearGradient(colors: [
-                                Colors.grey,
-                                Color.fromARGB(255, 184, 184, 184)
-                              ]),
                               child: Container(
                                 width: 30,
                                 height: 20,

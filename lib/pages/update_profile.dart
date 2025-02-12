@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, body_might_complete_normally_nullable, avoid_print
+// ignore_for_file: use_build_context_synchronously, body_might_complete_normally_nullable, avoid_print, prefer_const_constructors, deprecated_member_use
 
 import 'dart:convert';
 import 'dart:io';
@@ -12,6 +12,7 @@ import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/pages.dart';
 import 'package:quick_social/provider/user_provider.dart';
+import 'package:quick_social/services/followers_service.dart';
 import 'package:quick_social/services/user_services.dart';
 import 'package:quick_social/widgets/layout/button_widget.dart';
 import 'package:quick_social/widgets/layout/text_field.dart';
@@ -34,7 +35,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
   DateTime? _selectedDate;
   File? _image;
   Map<String, dynamic> profileData = {};
- 
+  FollowersService followersService = FollowersService();
   UserAccount? profile;
   bool isLoading = false;
 
@@ -196,6 +197,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
       return const Center(child: Text(''));
     }
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Update Profile'),
         centerTitle: true,
@@ -270,8 +272,8 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                 onTap: _submitProfile,
                 child: isLoading == true
                     ? CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            theme.colorScheme.primary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.orange),
                       )
                     : const ButtonWidget(
                         borderRadius: 0.06,

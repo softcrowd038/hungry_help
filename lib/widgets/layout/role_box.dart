@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class RoleBox extends StatefulWidget {
@@ -6,13 +8,15 @@ class RoleBox extends StatefulWidget {
   final double textFontSize;
   final double height;
   final double width;
-  const RoleBox(
-      {super.key,
-      required this.text,
-      required this.icon,
-      required this.textFontSize,
-      required this.height,
-      required this.width});
+
+  const RoleBox({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.textFontSize,
+    required this.height,
+    required this.width,
+  });
 
   @override
   State<StatefulWidget> createState() => _RoleBox();
@@ -28,28 +32,29 @@ class _RoleBox extends State<RoleBox> {
         width: MediaQuery.of(context).size.height * widget.width,
         decoration: BoxDecoration(
             color: Colors.white,
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                  offset: Offset(1, 1),
-                  blurRadius: 3,
-                  spreadRadius: 2,
-                  color: Colors.black12)
+                  offset: const Offset(1, 1),
+                  blurRadius: 8,
+                  spreadRadius: 3,
+                  color: Colors.grey.withOpacity(0.4))
             ],
             borderRadius: BorderRadius.circular(
                 MediaQuery.of(context).size.height * 0.015)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               widget.icon,
-              size: MediaQuery.of(context).size.height * 0.080,
+              size: MediaQuery.of(context).size.height * 0.050,
             ),
             Text(
               widget.text,
               style: TextStyle(
                   fontSize:
                       MediaQuery.of(context).size.height * widget.textFontSize),
-            )
+            ),
           ],
         ),
       ),

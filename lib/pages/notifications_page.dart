@@ -34,6 +34,7 @@ class _NotificationsPageState extends State<NotificationsPage>
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         flexibleSpace: ResponsivePadding(

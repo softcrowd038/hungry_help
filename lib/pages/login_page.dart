@@ -146,6 +146,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: SafeArea(
           child: Form(
@@ -154,7 +155,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Image(
-                  image: const AssetImage('assets/images/login.jpg'),
+                  image: const AssetImage('assets/images/login.png'),
                   height: MediaQuery.of(context).size.height * 0.400,
                   width: MediaQuery.of(context).size.height * 0.400,
                 ),

@@ -11,7 +11,9 @@ class MyApp extends StatelessWidget {
       title: 'Quick Social App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orangeAccent),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.orange,
+        ),
         useMaterial3: true,
         textTheme: GoogleFonts.dmSansTextTheme(),
       ),
