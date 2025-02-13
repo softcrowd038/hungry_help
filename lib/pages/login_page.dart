@@ -155,9 +155,10 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Image(
-                  image: const AssetImage('assets/images/login.png'),
-                  height: MediaQuery.of(context).size.height * 0.400,
-                  width: MediaQuery.of(context).size.height * 0.400,
+                  image: const NetworkImage(
+                      'https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7863.jpg?t=st=1739364862~exp=1739368462~hmac=181c12ed31222feb45e2a814e84f2b62da067c8c1c17c7e732781ef6b7fa454c&w=740'),
+                  height: MediaQuery.of(context).size.height * 0.500,
+                  width: MediaQuery.of(context).size.height * 0.500,
                 ),
                 const Text('You are just one step away'),
                 Text(

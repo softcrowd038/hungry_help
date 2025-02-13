@@ -79,7 +79,7 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image(
-                      image: const AssetImage('assets/images/logo6.png'),
+                      image: const AssetImage('assets/images/logo.png'),
                       height: MediaQuery.of(context).size.height * 0.1,
                       width: MediaQuery.of(context).size.width * 0.1,
                     ),

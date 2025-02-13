@@ -129,7 +129,8 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image(
-                  image: const AssetImage('assets/images/registration.png'),
+                  image: const NetworkImage(
+                      'https://img.freepik.com/free-vector/sign-up-concept-illustration_114360-7865.jpg?t=st=1739364902~exp=1739368502~hmac=879bd3edc8ce056d4363ddabab845acdfa41f2dfcfd5667ec72530cc9d124939&w=740'),
                   height: MediaQuery.of(context).size.height * 0.400,
                   width: MediaQuery.of(context).size.height * 0.400,
                 ),
