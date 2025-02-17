@@ -44,7 +44,7 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
                 if (_formKey.currentState!.validate()) {
                   postProvider.setTitle(_titleController.text);
                   postProvider.setDescription(_descriptionController.text);
-                  Navigator.of(context).push(MaterialPageRoute(
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
                       builder: (context) => const PostPreview()));
                 }
               },
