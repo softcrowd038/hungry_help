@@ -91,7 +91,7 @@ class _AddMealPage extends State<AddMealPage> {
         Provider.of<DonorDataProvider>(context, listen: false);
     donorDataProvider.setImageUrl(capturedFile);
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => const ReviewPage(),

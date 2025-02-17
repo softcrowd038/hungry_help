@@ -227,7 +227,7 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                               _expirytimeEditingController.text);
                           donorDataProvider
                               .setQuantity(_quantityEditingController.text);
-                          Navigator.of(context).push(MaterialPageRoute(
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(
                               builder: (context) => const AddLocationData()));
                         }
                       },

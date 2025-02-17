@@ -167,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     : const SizedBox(),
                 IconButton.filledTonal(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const ProfileUpdatePage()));

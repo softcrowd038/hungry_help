@@ -45,7 +45,7 @@ class _ReviewPageState extends State<ReviewPage> {
 
                 donorProfileProvider
                     .setDescription(_descriptionController.text);
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) => const AddMealDetails(),
                   ),

@@ -125,7 +125,7 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
           child: imageUrl.isNotEmpty
               ? GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                             builder: (context) => PostCardPreview(

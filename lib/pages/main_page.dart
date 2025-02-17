@@ -104,7 +104,7 @@ class _MainPage extends State<MainPage> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.push(context,
+                Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
@@ -152,7 +152,7 @@ class _MainPage extends State<MainPage> {
                 children: [
                   GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             (context),
                             MaterialPageRoute(
                                 builder: (context) => const AddMealPage()));
@@ -166,7 +166,7 @@ class _MainPage extends State<MainPage> {
                       )),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                           (context),
                           MaterialPageRoute(
                               builder: (context) =>

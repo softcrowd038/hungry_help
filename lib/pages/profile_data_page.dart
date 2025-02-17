@@ -61,7 +61,7 @@ class _ProfileDataPage extends State<ProfileDataPage> {
     profileProvider.setFirstname(_firstNameController.text.trim());
     profileProvider.setLastname(_lastNameController.text.trim());
 
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const ProfileLocationPage()),
     );

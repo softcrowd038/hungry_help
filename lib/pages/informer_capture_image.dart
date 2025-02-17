@@ -77,7 +77,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
           Provider.of<InformerDataProvider>(context, listen: false);
 
       informerDataProvider.setImageUrl(capturedFile);
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => const InformerCameraDescriptionPage(),

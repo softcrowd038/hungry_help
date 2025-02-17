@@ -113,7 +113,7 @@ class _FeedPageState extends State<FeedPage> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.push(context,
+                Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),
