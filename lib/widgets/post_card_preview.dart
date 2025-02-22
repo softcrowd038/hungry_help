@@ -42,10 +42,9 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
   }
 
   Future<void> _initializeData() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.fetchUserProfile(widget.uuid);
-    });
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchUserProfile(widget.uuid);
+
     await _fetchPostData();
   }
 

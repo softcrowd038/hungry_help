@@ -43,17 +43,16 @@ class _PostCardState extends State<PostCard> {
 
   Future<void> _initializeData() async {
     postService.postFollowStatus(context, widget.uuid);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      followStatusProvider =
-          Provider.of<FollowStatusProvider>(context, listen: false);
-      followStatusProvider.getFollowerInitialCount(context, widget.uuid);
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.fetchUserProfile(widget.uuid);
-      final likeStatusProvider =
-          Provider.of<LikeStatusProvider>(context, listen: false);
-      likeStatusProvider.fetchLikeStatus(widget.postUuid);
-      likeStatusProvider.getTotalLikes(widget.postUuid);
-    });
+
+    followStatusProvider =
+        Provider.of<FollowStatusProvider>(context, listen: false);
+    followStatusProvider.getFollowerInitialCount(context, widget.uuid);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchUserProfile(widget.uuid);
+    final likeStatusProvider =
+        Provider.of<LikeStatusProvider>(context, listen: false);
+    likeStatusProvider.fetchLikeStatus(widget.postUuid);
+    likeStatusProvider.getTotalLikes(widget.postUuid);
 
     postService.postLikeStatus(context, widget.postUuid);
     await _fetchPostData();

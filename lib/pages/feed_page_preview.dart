@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/services/add_post_service.dart';
@@ -17,9 +18,10 @@ class FeedPagePreview extends StatefulWidget {
 
 class _FeedPagePreviewState extends State<FeedPagePreview>
     with SingleTickerProviderStateMixin {
-  Map<String, dynamic> data = {};
+  Map<String, dynamic> data = {'data': []};
   bool _isLoading = true;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _hasError = false;
+
   PostService postService = PostService();
 
   @override
@@ -34,27 +36,25 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
     try {
       final response = await http.get(url);
 
+      if (!mounted) return;
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-
-        setState(() {
-          data = responseData;
-          _isLoading = false;
-        });
-      } else if (response.statusCode == 404) {
-        setState(() {
-          data = {'data': []};
-          _isLoading = false;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              data = responseData;
+              _isLoading = false;
+              _hasError = false;
+            });
+          }
         });
       } else {
-        throw Exception('Error: ${response.body}');
+        throw Exception('Failed to load posts');
       }
     } catch (e) {
       print('Error fetching posts: $e');
-      setState(() {
-        data = {'data': []};
-        _isLoading = false;
-      });
+      if (!mounted) return;
     }
   }
 
@@ -63,7 +63,6 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
     ThemeData theme = Theme.of(context);
 
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         flexibleSpace: SafeArea(
@@ -127,26 +126,33 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : data['data'] == null || data['data'].isEmpty
+          : _hasError
               ? Center(
                   child: Text(
-                    'No one has posted yet.',
+                    'Failed to load posts. Please try again later.',
                     style: theme.textTheme.bodyLarge,
                   ),
                 )
-              : ResponsivePadding(
-                  child: ListView.builder(
-                    itemCount: data['data'] != null ? data['data'].length : 0,
-                    itemBuilder: (_, index) {
-                      var post = data['data'][index];
-                      return PostCardLoginPreview(
-                        uuid: post['uuid'],
-                        postUuid: post['post_uuid'],
-                        initialCount: post['likes'],
-                      );
-                    },
-                  ),
-                ),
+              : data['data'].isEmpty
+                  ? Center(
+                      child: Text(
+                        'No one has posted yet.',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                    )
+                  : ResponsivePadding(
+                      child: ListView.builder(
+                        itemCount: data['data'].length,
+                        itemBuilder: (_, index) {
+                          var post = data['data'][index];
+                          return PostCardLoginPreview(
+                            uuid: post['uuid'],
+                            postUuid: post['post_uuid'],
+                            initialCount: post['likes'],
+                          );
+                        },
+                      ),
+                    ),
     );
   }
 }

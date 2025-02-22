@@ -71,8 +71,12 @@ class FollowStatusProvider with ChangeNotifier {
       return;
     }
 
-    bool newStatus = !_followStatusMap[userUuid]!;
-    int updatedFollowerCount = newStatus ? 1 : 0;
+    // Ensure userUuid exists in _followStatusMap before using the null check operator
+    bool isCurrentlyFollowing = _followStatusMap[userUuid] ?? false;
+    bool newStatus = !isCurrentlyFollowing;
+    int updatedFollowerCount = newStatus
+        ? (_followerCountMap[userUuid] ?? 0) + 1
+        : (_followerCountMap[userUuid] ?? 0) - 1;
 
     final url =
         Uri.parse('$baseUrl/updateFollowStatus/$userUuid/$currentUserUuid');
