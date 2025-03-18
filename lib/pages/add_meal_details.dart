@@ -174,16 +174,24 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                         ),
                       ),
                     ),
-                    GestureDetector(
+                     GestureDetector(
                       onTap: () async {
                         TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
                           initialTime: TimeOfDay.now(),
+                          builder: (context, child) {
+                            return MediaQuery(
+                              data: MediaQuery.of(context)
+                                  .copyWith(alwaysUse24HourFormat: true),
+                              child: child!,
+                            );
+                          },
                         );
+
                         if (pickedTime != null) {
                           setState(() {
                             _expirytimeEditingController.text =
-                                pickedTime.format(context);
+                                "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}";
                           });
                         }
                       },
