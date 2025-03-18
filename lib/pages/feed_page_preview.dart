@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/pages/login_page.dart';
 import 'package:quick_social/services/add_post_service.dart';
@@ -37,6 +36,7 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
       final response = await http.get(url);
 
       if (!mounted) return;
+      print(response.statusCode);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
@@ -50,10 +50,12 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
           }
         });
       } else {
+        _isLoading = false;
         throw Exception('Failed to load posts');
       }
     } catch (e) {
-      print('Error fetching posts: $e');
+      _isLoading = false;
+      print('Error fetching posts: $e ');
       if (!mounted) return;
     }
   }

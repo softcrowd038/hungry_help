@@ -130,12 +130,26 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                         TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
                           initialTime: TimeOfDay.now(),
+                          builder: (context, child) {
+                            return MediaQuery(
+                              data: MediaQuery.of(context)
+                                  .copyWith(alwaysUse24HourFormat: true),
+                              child: child!,
+                            );
+                          },
                         );
+
                         if (pickedTime != null) {
                           setState(() {
+                            // Displaying time in 24-hour format like HH:mm
                             _expirytimeEditingController.text =
-                                pickedTime.format(context);
+                                "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}";
                           });
+                        } else {
+                          // If no time is picked, show the current time in 24-hour format
+                          TimeOfDay currentTime = TimeOfDay.now();
+                          _expirytimeEditingController.text =
+                              "${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}";
                         }
                       },
                       child: AbsorbPointer(
@@ -147,7 +161,7 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                           obscureText: false,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please select a time';
+                              return 'Please select a Current time';
                             }
                             return null;
                           },

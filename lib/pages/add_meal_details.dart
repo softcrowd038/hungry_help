@@ -176,11 +176,19 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                         TimeOfDay? pickedTime = await showTimePicker(
                           context: context,
                           initialTime: TimeOfDay.now(),
+                          builder: (context, child) {
+                            return MediaQuery(
+                              data: MediaQuery.of(context)
+                                  .copyWith(alwaysUse24HourFormat: true),
+                              child: child!,
+                            );
+                          },
                         );
+
                         if (pickedTime != null) {
                           setState(() {
                             _expirytimeEditingController.text =
-                                pickedTime.format(context);
+                                "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}";
                           });
                         }
                       },
@@ -227,8 +235,10 @@ class _AddMealDetailsState extends State<AddMealDetails> {
                               _expirytimeEditingController.text);
                           donorDataProvider
                               .setQuantity(_quantityEditingController.text);
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(
-                              builder: (context) => const AddLocationData()));
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const AddLocationData()));
                         }
                       },
                       child: const ButtonWidget(
