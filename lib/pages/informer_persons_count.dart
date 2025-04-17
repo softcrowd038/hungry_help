@@ -195,10 +195,9 @@ class _InformerPersonsCount extends State<InformerPersonsCount> {
                           informerDataProvider
                               .setQuantity(_quantityEditingController.text);
 
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const InformerCameraReviewPage()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) =>
+                                  const InformerCameraReviewPage()));
                         }
                       },
                       child: const ButtonWidget(

@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
         body: jsonEncode(user.toJson()),
       );
       if (response.statusCode == 201) {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
@@ -188,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const Text('Already have an account? '),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => const LoginPage()));
                       },
                       child: const Text(

@@ -137,7 +137,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
             const SnackBar(
                 content: Text('Informer data submitted successfully!')),
           );
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {

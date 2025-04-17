@@ -98,7 +98,7 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const LoginPage()));

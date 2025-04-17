@@ -530,7 +530,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                                     .updateStatusClosestInformer(
                                                         widget.informerId,
                                                         updateFields);
-                                                Navigator.pushReplacement(
+                                                Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
@@ -556,7 +556,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                                                     .updateStatusClosestInformer(
                                                         widget.informerId,
                                                         updateFields);
-                                                Navigator.pushReplacement(
+                                                Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
@@ -592,7 +592,7 @@ class LiveLocationTrackerState extends State<LiveLocationTracker> {
                             updateStatusFields);
                         _service.updateStatusClosestInformer(
                             widget.informerId, updateStatusFields);
-                        Navigator.pushReplacement(
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const HomePage()));

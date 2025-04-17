@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quick_social/pages/add_meal_page.dart';
+import 'package:quick_social/pages/donation_details.dart';
 import 'package:quick_social/pages/home_page.dart';
 import 'package:quick_social/pages/informer_capture_image.dart';
 import 'package:quick_social/pages/login_page.dart';
@@ -104,8 +106,18 @@ class _MainPage extends State<MainPage> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const HomePage()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(FontAwesomeIcons.donate),
+              title: const Text('Your Activity'),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DonationDetails()));
               },
             ),
             ListTile(
@@ -152,7 +164,7 @@ class _MainPage extends State<MainPage> {
                 children: [
                   GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                             (context),
                             MaterialPageRoute(
                                 builder: (context) => const AddMealPage()));
@@ -166,7 +178,7 @@ class _MainPage extends State<MainPage> {
                       )),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                           (context),
                           MaterialPageRoute(
                               builder: (context) =>

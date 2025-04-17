@@ -38,7 +38,7 @@ class _CommentsPostPreviewState extends State<CommentsPostPreview> {
     final url = Uri.parse('$baseUrl/getcommentsbypostuuid/${widget.postUuid}');
 
     if (authToken == null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

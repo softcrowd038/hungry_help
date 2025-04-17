@@ -95,7 +95,7 @@ class _ProfileImagePage extends State<ProfileImagePage> {
       return;
     }
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const ProfileDataPage(),

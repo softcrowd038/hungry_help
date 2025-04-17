@@ -49,7 +49,7 @@ class _FeedPageState extends State<FeedPage> {
     final authToken = sharedPreferences.getString('auth_token');
 
     if (authToken == null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
@@ -113,7 +113,7 @@ class _FeedPageState extends State<FeedPage> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const HomePage()));
               },
             ),

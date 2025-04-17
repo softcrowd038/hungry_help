@@ -42,7 +42,7 @@ class _UserPostsTabViewState extends State<UserPostsTabView> {
     final url = Uri.parse('$baseUrl/getpostsbyid/$uuid');
 
     if (authToken == null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

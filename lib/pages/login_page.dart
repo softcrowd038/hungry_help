@@ -69,12 +69,12 @@ class _LoginPageState extends State<LoginPage> {
         if (profile != null &&
             profile!.userProfile.firstname != null &&
             profile!.userProfile.lastname != null) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ProfileImagePage()),
           );
@@ -199,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                     const Text('Not created account yet? '),
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => const RegisterPage()));
                       },
                       child: const Text(

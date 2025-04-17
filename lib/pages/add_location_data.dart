@@ -156,7 +156,7 @@ class _AddLocationData extends State<AddLocationData> {
               content: Text('Donation data submitted successfully!')),
         );
         if (mounted) {
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         }

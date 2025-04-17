@@ -137,7 +137,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
         var responseBody = await response.stream.bytesToString();
 
         if (response.statusCode == 200) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );

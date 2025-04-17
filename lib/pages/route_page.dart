@@ -36,7 +36,7 @@ class _RoutePage extends State<RoutePage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => const CaptureImageOrVideoPage()));

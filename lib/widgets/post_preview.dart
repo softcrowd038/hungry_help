@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:quick_social/data/app_data.dart';
 import 'package:quick_social/models/user_model.dart';
 import 'package:quick_social/pages/home_page.dart';
+import 'package:quick_social/provider/follow_status.dart';
+import 'package:quick_social/provider/like_status_provider.dart';
 import 'package:quick_social/provider/user_provider.dart';
 import 'package:quick_social/services/add_post_service.dart';
 import 'package:quick_social/services/post_service.dart';
@@ -29,6 +31,9 @@ class _PostCardPreviewState extends State<PostCardPreview> {
   bool isLoading = false;
   bool isDeleteVisible = false;
   UserAccount? profile;
+  String? status;
+
+  late FollowStatusProvider followStatusProvider;
 
   @override
   void initState() {
@@ -59,6 +64,15 @@ class _PostCardPreviewState extends State<PostCardPreview> {
     } catch (e) {
       print('Error fetching profile: $e');
     }
+
+    followStatusProvider =
+        Provider.of<FollowStatusProvider>(context, listen: false);
+    followStatusProvider.getFollowerInitialCount(context, uuid);
+
+    final likeStatusProvider =
+        Provider.of<LikeStatusProvider>(context, listen: false);
+    likeStatusProvider.fetchLikeStatus(widget.postUuid);
+    likeStatusProvider.getTotalLikes(widget.postUuid);
 
     await _fetchPostData();
   }
@@ -141,6 +155,7 @@ class _PostCardPreviewState extends State<PostCardPreview> {
 
   Widget _mobileCard(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
+    ThemeData theme = Theme.of(context);
 
     if (userProvider.errorMessage != null) {
       return Center(child: Text('Error: ${userProvider.errorMessage}'));
@@ -219,7 +234,7 @@ class _PostCardPreviewState extends State<PostCardPreview> {
               GestureDetector(
                 onTap: () async {
                   final deleteService = DeletePostService();
-                  Navigator.pushReplacement(
+                  Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const HomePage()));
@@ -357,6 +372,45 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                               },
                             ),
                           ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Consumer<LikeStatusProvider>(
+                          builder: (context, likeStatusProvider, child) {
+                        final isLiked =
+                            likeStatusProvider.isLiked(widget.postUuid);
+                        final count =
+                            likeStatusProvider.totalLikes(widget.postUuid);
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isLiked
+                                    ? theme.colorScheme.primary
+                                    : Colors.black,
+                              ),
+                              onPressed: () {
+                                likeStatusProvider.toggleLikeStatus(
+                                    context, widget.postUuid);
+                              },
+                            ),
+                            Text(
+                              '$count',
+                              style: TextStyle(
+                                  fontSize: MediaQuery.of(context).size.height *
+                                      0.014,
+                                  color: Colors.grey),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(

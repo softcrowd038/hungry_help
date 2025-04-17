@@ -108,7 +108,7 @@ class ClosestInformerService {
           throw Exception('Unexpected JSON structure');
         }
       } else if (response.statusCode == 500) {
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );

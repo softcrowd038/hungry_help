@@ -238,7 +238,7 @@ class _ConfirmOrder extends State<ConfirmOrder> {
                                   updateFields);
                               _service.updateStatusClosestInformer(
                                   widget.informerId, updateFields);
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => LiveLocationTracker(

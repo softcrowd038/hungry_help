@@ -118,7 +118,7 @@ class _ProfileLocationPage extends State<ProfileLocationPage> {
     profileProvider.setLatitude(_latitude!);
     profileProvider.setLongitude(_longitude!);
 
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => const ProfileBirthdatePage()),
     );
   }

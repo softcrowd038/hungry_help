@@ -50,7 +50,7 @@ class _InformerCameraDescriptionPageState
 
                 informerProfileProvider
                     .setDescription(_descriptionController.text);
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const InformerPersonsCount()));
               },
               child: Text(

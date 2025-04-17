@@ -85,8 +85,8 @@ class _ProfileBirthdatePage extends State<ProfileBirthdatePage> {
 
           print('Profile submitted successfully: $jsonResponse');
           await prefs.setString('status', 'active');
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const HomePage()));
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => const HomePage()));
         } else {
           final responseData = await http.Response.fromStream(response);
           final jsonResponse = json.decode(responseData.body);

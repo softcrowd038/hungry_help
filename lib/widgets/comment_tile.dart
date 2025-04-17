@@ -35,7 +35,7 @@ class _CommentTileState extends State<CommentTile> {
     final authToken = sharedPreferences.getString('auth_token');
 
     if (authToken == null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );

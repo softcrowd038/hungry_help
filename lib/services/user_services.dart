@@ -104,7 +104,7 @@ class UserApiService {
       if (response.statusCode == 201 || response.statusCode == 200) {
         await deleteAccount(context);
 
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );

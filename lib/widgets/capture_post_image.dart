@@ -84,7 +84,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
 
   void _navigateToReviewPage() {
     if (_capturedFile != null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => const ReviewPostPage(),

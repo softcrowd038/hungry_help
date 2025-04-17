@@ -128,7 +128,7 @@ class _PostCardLoginPreviewState extends State<PostCardLoginPreview> {
                   children: [
                     GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const LoginPage()));

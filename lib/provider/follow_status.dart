@@ -24,7 +24,7 @@ class FollowStatusProvider with ChangeNotifier {
     final currentUserUuid = sharedPreferences.getString('user_uuid');
 
     if (authToken == null || currentUserUuid == null) {
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
