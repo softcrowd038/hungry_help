@@ -39,7 +39,7 @@ class _AppLogoState extends State<AppLogo> with SingleTickerProviderStateMixin {
           );
         },
         child: Image.asset(
-          'assets/images/logo6.png',
+          'assets/images/logo.png',
           height: screenHeight * 0.2,
           width: screenHeight * 0.2,
         ),

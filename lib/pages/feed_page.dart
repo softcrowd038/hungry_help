@@ -99,7 +99,7 @@ class _FeedPageState extends State<FeedPage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+                color: Colors.orange,
               ),
               child: Text(
                 'Menu',

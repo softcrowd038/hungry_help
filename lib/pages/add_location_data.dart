@@ -184,7 +184,6 @@ class _AddLocationData extends State<AddLocationData> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -284,8 +283,8 @@ class _AddLocationData extends State<AddLocationData> {
                       },
                       child: _isLoading
                           ? CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  theme.colorScheme.primary),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.orange),
                             )
                           : const ButtonWidget(
                               borderRadius: 0.06,

@@ -76,7 +76,7 @@ class _HomePageState extends State<HomePage> {
           ? NavigationRailLabelType.none
           : NavigationRailLabelType.all,
       selectedLabelTextStyle: textTheme.bodyMedium?.copyWith(
-        color: theme.colorScheme.primary,
+        color: Colors.orange,
         fontWeight: FontWeight.bold,
       ),
       unselectedLabelTextStyle: textTheme.bodyMedium,
@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.home_outlined),
           selectedIcon: Icon(
             Icons.home,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: const Text('Home'),
         ),
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.explore),
           selectedIcon: Icon(
             Icons.explore,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: const Text('Explore'),
         ),
@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.person_outlined),
           selectedIcon: Icon(
             Icons.person,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: const Text('Profile'),
         ),
@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.home_outlined),
           selectedIcon: Icon(
             Icons.home,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Home',
         ),
@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.explore),
           selectedIcon: Icon(
             Icons.explore,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Add',
         ),
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.person_outlined),
           selectedIcon: Icon(
             Icons.person,
-            color: theme.colorScheme.primary,
+            color: Colors.orange,
           ),
           label: 'Profile',
         ),

@@ -156,8 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? IconButton.filledTonal(
                         onPressed: () => context.pop(),
                         style: IconButton.styleFrom(
-                          backgroundColor:
-                              theme.colorScheme.primary.withAlpha(75),
+                          backgroundColor: Colors.orange.withAlpha(75),
                         ),
                         icon: const Icon(
                           Icons.arrow_back_ios_new,
@@ -173,7 +172,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             builder: (context) => const ProfileUpdatePage()));
                   },
                   style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary.withAlpha(75),
+                    backgroundColor: Colors.orange.withAlpha(75),
                   ),
                   icon: Icon(
                     widget.user.isMe ? Icons.edit : Icons.more_vert,

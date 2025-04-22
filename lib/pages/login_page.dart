@@ -69,12 +69,12 @@ class _LoginPageState extends State<LoginPage> {
         if (profile != null &&
             profile!.userProfile.firstname != null &&
             profile!.userProfile.lastname != null) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const ProfileImagePage()),
           );

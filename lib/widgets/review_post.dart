@@ -189,7 +189,7 @@ class _ReviewPostPageState extends State<ReviewPostPage> {
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Edit Image',
-          toolbarColor: theme.colorScheme.primary,
+          toolbarColor: Colors.orange,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
           lockAspectRatio: false,

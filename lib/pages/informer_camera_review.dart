@@ -172,7 +172,7 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
   @override
   Widget build(BuildContext context) {
     final informerDataProvider = Provider.of<InformerDataProvider>(context);
-    ThemeData theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -336,8 +336,8 @@ class _InformerCameraReviewPage extends State<InformerCameraReviewPage> {
                       onTap: submitDonation,
                       child: _isLoading
                           ? CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  theme.colorScheme.primary),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.orange),
                             )
                           : const ButtonWidget(
                               borderRadius: 0.06,

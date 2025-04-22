@@ -46,9 +46,7 @@ class _NotificationTileState extends State<NotificationTile> {
           NotificationType.comment => Icons.chat_bubble,
           NotificationType.follow => Icons.person_add,
         },
-        color: _notification.isRead
-            ? theme.disabledColor
-            : theme.colorScheme.primary,
+        color: _notification.isRead ? theme.disabledColor : Colors.orange,
       ),
       title: Text(
         widget.notification.message,
@@ -68,7 +66,7 @@ class _NotificationTileState extends State<NotificationTile> {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+                color: Colors.orange,
                 shape: BoxShape.circle,
               ),
             ),

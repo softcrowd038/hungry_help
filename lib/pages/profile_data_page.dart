@@ -69,7 +69,6 @@ class _ProfileDataPage extends State<ProfileDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final profileProvider = Provider.of<UserProfileProvider>(context);
 
     return Scaffold(
@@ -121,7 +120,7 @@ class _ProfileDataPage extends State<ProfileDataPage> {
                                     MediaQuery.of(context).size.height * 0.130,
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: theme.colorScheme.primary,
+                                    color: Colors.orange,
                                     width: 2,
                                   ),
                                   borderRadius: BorderRadius.circular(
@@ -144,7 +143,7 @@ class _ProfileDataPage extends State<ProfileDataPage> {
                                         size:
                                             MediaQuery.of(context).size.height *
                                                 0.130,
-                                        color: theme.colorScheme.primary,
+                                        color: Colors.orange,
                                       ),
                               ),
                               Padding(

@@ -77,8 +77,6 @@ class _MainPage extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
@@ -92,7 +90,7 @@ class _MainPage extends State<MainPage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
+                color: Colors.orange,
               ),
               child: const Text(
                 'Menu',

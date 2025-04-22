@@ -155,7 +155,6 @@ class _PostCardPreviewState extends State<PostCardPreview> {
 
   Widget _mobileCard(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    ThemeData theme = Theme.of(context);
 
     if (userProvider.errorMessage != null) {
       return Center(child: Text('Error: ${userProvider.errorMessage}'));
@@ -391,9 +390,7 @@ class _PostCardPreviewState extends State<PostCardPreview> {
                                 isLiked
                                     ? Icons.favorite
                                     : Icons.favorite_border,
-                                color: isLiked
-                                    ? theme.colorScheme.primary
-                                    : Colors.black,
+                                color: isLiked ? Colors.orange : Colors.black,
                               ),
                               onPressed: () {
                                 likeStatusProvider.toggleLikeStatus(

@@ -10,7 +10,7 @@ class LoadingImageWidget extends StatelessWidget {
       color: theme.colorScheme.secondaryContainer,
       child: Center(
         child: CircularProgressIndicator(
-          color: theme.colorScheme.primary,
+          color: Colors.orange,
         ),
       ),
     );

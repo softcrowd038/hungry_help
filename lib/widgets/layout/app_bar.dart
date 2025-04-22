@@ -18,8 +18,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
     return AppBar(
       automaticallyImplyLeading: false,
       flexibleSpace: SafeArea(
@@ -30,11 +28,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 IconButton(
-                  icon: Icon(Icons.menu, color: theme.colorScheme.primary),
+                  icon: Icon(Icons.menu, color: Colors.orange),
                   onPressed: widget.onPressed,
                 ),
                 Image(
-                  image: const AssetImage('assets/images/logo6.png'),
+                  image: const AssetImage('assets/images/logo.png'),
                   height: MediaQuery.of(context).size.height * 0.09,
                   width: MediaQuery.of(context).size.width * 0.09,
                 ),
@@ -42,11 +40,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   padding: EdgeInsets.all(
                       MediaQuery.of(context).size.height * 0.015),
                   child: Text(
-                    'Akshay Patra',
+                    'Hungry Help',
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.height * 0.025,
                       fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
+                      color: Colors.orange,
                     ),
                   ),
                 ),

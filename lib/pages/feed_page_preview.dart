@@ -79,7 +79,7 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image(
-                      image: const AssetImage('assets/images/logo6.png'),
+                      image: const AssetImage('assets/images/logo.png'),
                       height: MediaQuery.of(context).size.height * 0.1,
                       width: MediaQuery.of(context).size.width * 0.1,
                     ),
@@ -87,11 +87,11 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
                       width: MediaQuery.of(context).size.height * 0.015,
                     ),
                     Text(
-                      'Akshay Patra',
+                      'Hungry Help',
                       style: TextStyle(
                         fontSize: MediaQuery.of(context).size.height * 0.022,
                         fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
+                        color: Colors.orange,
                       ),
                     ),
                   ],
@@ -107,7 +107,7 @@ class _FeedPagePreviewState extends State<FeedPagePreview>
                     height: MediaQuery.of(context).size.height * 0.050,
                     width: MediaQuery.of(context).size.height * 0.100,
                     decoration: BoxDecoration(
-                        color: theme.colorScheme.primary,
+                        color: Colors.orange,
                         borderRadius: BorderRadius.circular(
                             MediaQuery.of(context).size.height * 0.0080)),
                     child: Center(

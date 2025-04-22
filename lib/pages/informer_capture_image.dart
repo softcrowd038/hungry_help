@@ -107,7 +107,6 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -191,7 +190,7 @@ class _InformerCaptureImage extends State<InformerCaptureImage> {
                         height: MediaQuery.of(context).size.height * 0.090,
                         width: MediaQuery.of(context).size.height * 0.090,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
+                          color: Colors.orange,
                           borderRadius: BorderRadius.circular(
                             MediaQuery.of(context).size.height * 0.090,
                           ),

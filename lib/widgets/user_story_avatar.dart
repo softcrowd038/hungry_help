@@ -33,7 +33,7 @@ class UserStoryAvatar extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              splashColor: theme.colorScheme.primary.withAlpha(50),
+              splashColor: Colors.orange.withAlpha(50),
               borderRadius: BorderRadius.circular(100),
               onTap: onTap,
             ),

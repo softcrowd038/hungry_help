@@ -187,7 +187,6 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    ThemeData theme = Theme.of(context);
 
     if (userProvider.errorMessage != null) {
       return Center(child: Text('Error: ${userProvider.errorMessage}'));
@@ -271,8 +270,8 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                 onTap: _submitProfile,
                 child: isLoading == true
                     ? CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            theme.colorScheme.primary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.orange),
                       )
                     : const ButtonWidget(
                         borderRadius: 0.06,
@@ -291,7 +290,7 @@ class _ProfileUpdatePageState extends State<ProfileUpdatePage> {
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.10,
                     decoration: BoxDecoration(
-                        color: theme.colorScheme.error.withOpacity(0.1),
+                        color: Colors.red.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(
                             MediaQuery.of(context).size.height * 0.015)),
                     child: Row(

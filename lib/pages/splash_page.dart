@@ -18,12 +18,12 @@ class _SplashPageState extends State<SplashPage> {
 
     if (mounted) {
       if (token != null) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const FeedPagePreview()),
         );

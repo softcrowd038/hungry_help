@@ -128,13 +128,12 @@ class _PostCardState extends State<PostCard> {
   }
 
   Widget _mobileCard(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     final userProvider = Provider.of<UserProvider>(context);
 
     // if (userProvider.errorMessage != null) {
     //   return Center(
     //       child: CircularProgressIndicator(
-    //     color: theme.colorScheme.primary,
+    //     color: Colors.orange,
     //   ));
     // }
 
@@ -309,9 +308,7 @@ class _PostCardState extends State<PostCard> {
                                 isLiked
                                     ? Icons.favorite
                                     : Icons.favorite_border,
-                                color: isLiked
-                                    ? theme.colorScheme.primary
-                                    : Colors.black,
+                                color: isLiked ? Colors.orange : Colors.black,
                               ),
                               onPressed: () {
                                 likeStatusProvider.toggleLikeStatus(

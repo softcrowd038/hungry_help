@@ -127,7 +127,6 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Post'),
@@ -153,7 +152,7 @@ class _CaptureImageOrVideoPageState extends State<CaptureImageOrVideoPage> {
                         height: MediaQuery.of(context).size.height * 0.090,
                         width: MediaQuery.of(context).size.height * 0.090,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
+                          color: Colors.orange,
                           borderRadius: BorderRadius.circular(
                             MediaQuery.of(context).size.height * 0.090,
                           ),

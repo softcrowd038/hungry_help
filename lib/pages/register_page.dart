@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
         body: jsonEncode(user.toJson()),
       );
       if (response.statusCode == 201) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
         );
